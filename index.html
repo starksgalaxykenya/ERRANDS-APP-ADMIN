@@ -14,7 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     
-    <!-- Chart.js for analytics -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <!-- Font Awesome -->
@@ -24,6 +24,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
+        /* Root Variables */
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
@@ -40,6 +41,7 @@
             --transition: all 0.3s ease;
         }
 
+        /* Reset & Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -52,6 +54,123 @@
             color: var(--dark);
         }
 
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .login-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .login-left h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-left p {
+            font-size: 20px;
+            line-height: 1.6;
+            opacity: 0.9;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-item {
+            text-align: center;
+        }
+
+        .feature-item i {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .feature-item h3 {
+            margin-bottom: 10px;
+        }
+
+        .feature-item p {
+            font-size: 14px;
+        }
+
+        .login-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .login-header p {
+            color: var(--gray);
+        }
+
+        .demo-credentials {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin: 20px 0;
+            font-size: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .demo-credentials p {
+            margin: 5px 0;
+            color: var(--dark);
+        }
+
+        .demo-credentials strong {
+            color: var(--primary);
+        }
+
+        .error-message {
+            color: var(--danger);
+            background: #fee2e2;
+            padding: 10px;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* Main Dashboard Layout */
         .app-container {
             display: flex;
             min-height: 100vh;
@@ -65,11 +184,11 @@
             padding: 25px 0;
             display: flex;
             flex-direction: column;
-            transition: var(--transition);
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
+            transition: var(--transition);
         }
 
         .sidebar-header {
@@ -90,8 +209,8 @@
         }
 
         .admin-badge {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 12px;
             margin-top: 10px;
@@ -118,7 +237,7 @@
             border-radius: var(--radius);
             transition: var(--transition);
             font-weight: 500;
-            position: relative;
+            cursor: pointer;
         }
 
         .nav-link i {
@@ -127,12 +246,12 @@
         }
 
         .nav-link:hover, .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.15);
             transform: translateX(5px);
         }
 
         .badge {
-            background-color: var(--danger);
+            background: var(--danger);
             color: white;
             padding: 2px 8px;
             border-radius: 20px;
@@ -248,7 +367,7 @@
             font-size: 24px;
         }
 
-        /* Charts Row */
+        /* Charts */
         .charts-row {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -301,7 +420,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background-color: var(--light);
+            background: var(--light);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 8px 15px;
@@ -349,7 +468,7 @@
         th {
             text-align: left;
             padding: 15px;
-            background-color: var(--light);
+            background: var(--light);
             font-weight: 600;
             font-size: 14px;
             color: var(--gray);
@@ -362,7 +481,7 @@
         }
 
         tr:hover {
-            background-color: var(--light);
+            background: var(--light);
         }
 
         .user-cell {
@@ -386,23 +505,23 @@
             display: inline-block;
         }
 
-        .status-active, .status-verified, .status-completed, .status-approved {
-            background-color: #d1fae5;
+        .status-active, .status-verified, .status-completed {
+            background: #d1fae5;
             color: #065f46;
         }
 
         .status-pending, .status-waiting {
-            background-color: #fff3cd;
+            background: #fff3cd;
             color: #856404;
         }
 
         .status-banned, .status-rejected, .status-cancelled {
-            background-color: #fee2e2;
+            background: #fee2e2;
             color: #991b1b;
         }
 
         .status-inactive {
-            background-color: #e5e7eb;
+            background: #e5e7eb;
             color: #374151;
         }
 
@@ -413,7 +532,7 @@
         }
 
         .action-btn {
-            padding: 5px 10px;
+            padding: 5px 12px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -422,60 +541,11 @@
             transition: var(--transition);
         }
 
-        .action-btn.view {
-            background-color: var(--info);
-            color: white;
-        }
-
-        .action-btn.edit {
-            background-color: var(--warning);
-            color: white;
-        }
-
-        .action-btn.approve {
-            background-color: var(--success);
-            color: white;
-        }
-
-        .action-btn.reject, .action-btn.ban {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .action-btn.suspend {
-            background-color: var(--gray);
-            color: white;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: var(--radius);
-            transition: var(--transition);
-            font-weight: 500;
-        }
-
-        .tab:hover, .tab.active {
-            background-color: var(--primary);
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
+        .action-btn.view { background: var(--info); color: white; }
+        .action-btn.edit { background: var(--warning); color: white; }
+        .action-btn.approve { background: var(--success); color: white; }
+        .action-btn.reject, .action-btn.ban { background: var(--danger); color: white; }
+        .action-btn.suspend { background: var(--gray); color: white; }
 
         /* Modal */
         .modal {
@@ -485,7 +555,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -511,6 +581,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
         }
 
         .modal-header h2 {
@@ -536,6 +609,9 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
+            position: sticky;
+            bottom: 0;
+            background: white;
         }
 
         /* Forms */
@@ -564,59 +640,6 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        select.form-control {
-            cursor: pointer;
-        }
-
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: var(--radius);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--border);
-            color: var(--dark);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
         /* Commission Settings */
         .commission-settings {
             display: grid;
@@ -628,12 +651,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background-color: var(--light);
+            background: var(--light);
             border-radius: var(--radius);
-        }
-
-        .commission-item label {
-            font-weight: 500;
         }
 
         .commission-input {
@@ -644,64 +663,44 @@
             text-align: right;
         }
 
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .sidebar {
-                width: 80px;
-                padding: 20px 0;
-            }
-            
-            .sidebar-header, .admin-profile, .nav-link span, .logo span, .admin-badge {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 80px;
-            }
-            
-            .nav-link {
-                justify-content: center;
-                padding: 15px;
-            }
-            
-            .nav-link i {
-                margin: 0;
-                font-size: 20px;
-            }
-            
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
+        /* Verification Documents */
+        .verification-doc {
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .search-box input {
-                width: 180px;
-            }
-            
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
+        .verification-doc img {
+            max-width: 100%;
+            border-radius: var(--radius);
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        /* Dispute Card */
+        .dispute-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .dispute-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .dispute-id {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .dispute-message {
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            margin: 15px 0;
         }
 
         /* Toast */
@@ -728,17 +727,9 @@
             opacity: 1;
         }
 
-        .toast.success {
-            border-left: 4px solid var(--success);
-        }
-
-        .toast.error {
-            border-left: 4px solid var(--danger);
-        }
-
-        .toast.warning {
-            border-left: 4px solid var(--warning);
-        }
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.warning { border-left: 4px solid var(--warning); }
 
         /* Loading */
         .loading-spinner {
@@ -768,101 +759,63 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Dispute styles */
-        .dispute-card {
-            background: var(--light);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--warning);
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-header, .admin-profile, .nav-link span, .logo span, .admin-badge {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .nav-link i {
+                margin: 0;
+                font-size: 20px;
+            }
+            
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .dispute-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .dispute-id {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .dispute-status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .dispute-message {
-            background: white;
-            padding: 15px;
-            border-radius: var(--radius);
-            margin: 15px 0;
-        }
-
-        /* Login Page */
-        .login-container {
-            display: flex;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        }
-
-        .login-left {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            color: white;
-        }
-
-        .login-right {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: var(--radius);
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .login-header p {
-            color: var(--gray);
-        }
-
-        .demo-credentials {
-            background: var(--light);
-            padding: 15px;
-            border-radius: var(--radius);
-            margin: 20px 0;
-            font-size: 14px;
-        }
-
-        .demo-credentials p {
-            margin: 5px 0;
-            color: var(--gray);
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
@@ -870,23 +823,33 @@
     <!-- Login Page -->
     <div id="loginPage" class="login-container">
         <div class="login-left">
-            <div style="text-align: center; max-width: 500px;">
-                <h1 style="font-size: 48px; margin-bottom: 20px;">⚙️ ERRANDS ADMIN</h1>
-                <p style="font-size: 20px; line-height: 1.6;">Complete platform management system. Monitor, verify, and control all aspects of your errand service.</p>
-                <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <i class="fas fa-users" style="font-size: 40px; margin-bottom: 15px;"></i>
-                        <h3>User Management</h3>
-                        <p>Verify, approve, or ban users</p>
-                    </div>
-                    <div>
-                        <i class="fas fa-chart-line" style="font-size: 40px; margin-bottom: 15px;"></i>
-                        <h3>Analytics</h3>
-                        <p>Track platform metrics</p>
-                    </div>
+            <h1>⚙️ ERRANDS ADMIN</h1>
+            <p>Complete platform management system. Monitor, verify, and control all aspects of your errand service.</p>
+            
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-users"></i>
+                    <h3>User Management</h3>
+                    <p>Verify, approve, or ban users</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-id-card"></i>
+                    <h3>Verifications</h3>
+                    <p>Review runner documents</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-gavel"></i>
+                    <h3>Dispute Resolution</h3>
+                    <p>Handle conflicts fairly</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Analytics</h3>
+                    <p>Track platform metrics</p>
                 </div>
             </div>
         </div>
+        
         <div class="login-right">
             <div class="login-card">
                 <div class="login-header">
@@ -895,10 +858,13 @@
                 </div>
                 
                 <div class="demo-credentials">
-                    <p><strong>Demo Credentials:</strong></p>
-                    <p>Email: admin@errands.com</p>
-                    <p>Password: Admin@123</p>
+                    <p><strong>🔐 Demo Credentials:</strong></p>
+                    <p><i class="fas fa-envelope"></i> admin@errands.com</p>
+                    <p><i class="fas fa-lock"></i> Admin@123</p>
+                    <p style="margin-top: 10px; font-size: 12px; color: var(--gray);">First login will auto-create admin account</p>
                 </div>
+                
+                <div id="loginError" class="error-message"></div>
                 
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
@@ -910,9 +876,7 @@
                     <input type="password" id="adminPassword" class="form-control" placeholder="Enter password" value="Admin@123">
                 </div>
                 
-                <div id="loginError" class="error-message" style="display: none; color: var(--danger); margin-bottom: 15px;"></div>
-                
-                <button id="adminLoginBtn" class="btn btn-primary" style="width: 100%;">
+                <button id="adminLoginBtn" class="btn btn-primary" style="width: 100%; padding: 12px;">
                     <i class="fas fa-lock"></i> Access Dashboard
                 </button>
             </div>
@@ -924,80 +888,80 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <a href="#" class="logo">
+                <div class="logo">
                     <i class="fas fa-running"></i>
                     <span>ERRANDS ADMIN</span>
-                </a>
+                </div>
                 <div class="admin-badge">SUPER ADMIN</div>
             </div>
             
             <ul class="nav-links">
                 <li class="nav-item">
-                    <a href="#" class="nav-link active" data-page="dashboard">
+                    <a class="nav-link active" data-page="dashboard">
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="users">
+                    <a class="nav-link" data-page="users">
                         <i class="fas fa-users"></i>
                         <span>User Management</span>
                         <span class="badge" id="pendingUsersBadge">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="verifications">
+                    <a class="nav-link" data-page="verifications">
                         <i class="fas fa-id-card"></i>
                         <span>Verifications</span>
                         <span class="badge" id="pendingVerificationsBadge">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="errands">
+                    <a class="nav-link" data-page="errands">
                         <i class="fas fa-tasks"></i>
                         <span>Errands</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="disputes">
+                    <a class="nav-link" data-page="disputes">
                         <i class="fas fa-gavel"></i>
                         <span>Disputes</span>
                         <span class="badge" id="disputesBadge">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="payments">
+                    <a class="nav-link" data-page="payments">
                         <i class="fas fa-credit-card"></i>
                         <span>Payments</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="commission">
+                    <a class="nav-link" data-page="commission">
                         <i class="fas fa-percent"></i>
                         <span>Commission Settings</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="support">
+                    <a class="nav-link" data-page="support">
                         <i class="fas fa-headset"></i>
                         <span>Support Tickets</span>
                         <span class="badge" id="supportBadge">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="analytics">
+                    <a class="nav-link" data-page="analytics">
                         <i class="fas fa-chart-bar"></i>
                         <span>Analytics</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="settings">
+                    <a class="nav-link" data-page="settings">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" id="adminLogoutBtn">
+                    <a class="nav-link" id="adminLogoutBtn">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Logout</span>
                     </a>
@@ -1015,7 +979,7 @@
 
         <!-- Main Content Area -->
         <div class="main-content">
-            <!-- Dynamic Header -->
+            <!-- Header -->
             <div class="header">
                 <h1 class="page-title" id="currentPageTitle">
                     <i class="fas fa-home"></i>
@@ -1026,54 +990,40 @@
 
             <!-- Dashboard Page -->
             <div id="dashboardPage" class="page active">
-                <!-- Stats Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-info">
                             <h3>Total Users</h3>
                             <div class="stat-number" id="totalUsers">0</div>
-                            <span style="font-size: 12px; color: var(--gray);">+12% this month</span>
                         </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-info">
                             <h3>Active Runners</h3>
                             <div class="stat-number" id="activeRunners">0</div>
-                            <span style="font-size: 12px; color: var(--gray);">Online now</span>
                         </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-running"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-running"></i></div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-info">
                             <h3>Total Errands</h3>
                             <div class="stat-number" id="totalErrands">0</div>
-                            <span style="font-size: 12px; color: var(--gray);">This month</span>
                         </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-tasks"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-tasks"></i></div>
                     </div>
                     
                     <div class="stat-card">
                         <div class="stat-info">
                             <h3>Commission Earned</h3>
                             <div class="stat-number" id="totalCommission">KSH 0</div>
-                            <span style="font-size: 12px; color: var(--gray);">20% platform fee</span>
                         </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-coins"></i>
-                        </div>
+                        <div class="stat-icon"><i class="fas fa-coins"></i></div>
                     </div>
                 </div>
 
-                <!-- Charts Row -->
                 <div class="charts-row">
                     <div class="chart-card">
                         <h2>Platform Activity (Last 7 Days)</h2>
@@ -1086,7 +1036,6 @@
                     </div>
                 </div>
 
-                <!-- Recent Activity Tables -->
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Pending Verifications</h2>
@@ -1094,21 +1043,19 @@
                             View All <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
-                    <div id="pendingVerificationsTable">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Runner</th>
-                                    <th>Submitted</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pendingVerificationsBody">
-                                <tr><td colspan="4" style="text-align: center;">No pending verifications</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <table id="pendingVerificationsTable">
+                        <thead>
+                            <tr>
+                                <th>Runner</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingVerificationsBody">
+                            <tr><td colspan="4" style="text-align: center;">No pending verifications</td></tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="table-container">
@@ -1118,26 +1065,24 @@
                             View All <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
-                    <div id="recentDisputesTable">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Dispute ID</th>
-                                    <th>Client/Runner</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentDisputesBody">
-                                <tr><td colspan="5" style="text-align: center;">No active disputes</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <table id="recentDisputesTable">
+                        <thead>
+                            <tr>
+                                <th>Dispute ID</th>
+                                <th>Client/Runner</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentDisputesBody">
+                            <tr><td colspan="5" style="text-align: center;">No active disputes</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- User Management Page -->
+            <!-- Users Page -->
             <div id="usersPage" class="page">
                 <div class="table-container">
                     <div class="table-header">
@@ -1149,10 +1094,8 @@
                             </div>
                             <div class="filter-buttons">
                                 <button class="filter-btn active" data-user-filter="all">All</button>
-                                <button class="filter-btn" data-user-filter="clients">Clients</button>
-                                <button class="filter-btn" data-user-filter="runners">Runners</button>
-                                <button class="filter-btn" data-user-filter="pending">Pending</button>
-                                <button class="filter-btn" data-user-filter="banned">Banned</button>
+                                <button class="filter-btn" data-user-filter="client">Clients</button>
+                                <button class="filter-btn" data-user-filter="runner">Runners</button>
                             </div>
                         </div>
                     </div>
@@ -1185,13 +1128,23 @@
                             <button class="filter-btn active" data-verification-filter="pending">Pending</button>
                             <button class="filter-btn" data-verification-filter="approved">Approved</button>
                             <button class="filter-btn" data-verification-filter="rejected">Rejected</button>
-                            <button class="filter-btn" data-verification-filter="all">All</button>
                         </div>
                     </div>
                     
-                    <div id="verificationsList">
-                        <!-- Verifications will be loaded here -->
-                    </div>
+                    <table id="verificationsTable">
+                        <thead>
+                            <tr>
+                                <th>Runner</th>
+                                <th>Submitted</th>
+                                <th>Documents</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="verificationsBody">
+                            <tr><td colspan="5" style="text-align: center;">Loading verifications...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1210,7 +1163,6 @@
                                 <button class="filter-btn" data-errand-filter="pending">Pending</button>
                                 <button class="filter-btn" data-errand-filter="active">Active</button>
                                 <button class="filter-btn" data-errand-filter="completed">Completed</button>
-                                <button class="filter-btn" data-errand-filter="disputed">Disputed</button>
                             </div>
                         </div>
                     </div>
@@ -1244,13 +1196,10 @@
                             <button class="filter-btn active" data-dispute-filter="open">Open</button>
                             <button class="filter-btn" data-dispute-filter="resolved">Resolved</button>
                             <button class="filter-btn" data-dispute-filter="escalated">Escalated</button>
-                            <button class="filter-btn" data-dispute-filter="all">All</button>
                         </div>
                     </div>
                     
-                    <div id="disputesList">
-                        <!-- Disputes will be loaded here -->
-                    </div>
+                    <div id="disputesList"></div>
                 </div>
             </div>
 
@@ -1269,23 +1218,11 @@
                             <div class="stat-number" id="pendingPayouts">KSH 0</div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>Completed Payouts</h3>
-                            <div class="stat-number" id="completedPayouts">KSH 0</div>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Transaction History</h2>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-transaction-filter="all">All</button>
-                            <button class="filter-btn" data-transaction-filter="escrow">Escrow</button>
-                            <button class="filter-btn" data-transaction-filter="withdrawal">Withdrawals</button>
-                            <button class="filter-btn" data-transaction-filter="commission">Commission</button>
-                        </div>
                     </div>
                     
                     <table id="transactionsTable">
@@ -1306,7 +1243,7 @@
                 </div>
             </div>
 
-            <!-- Commission Settings Page -->
+            <!-- Commission Page -->
             <div id="commissionPage" class="page">
                 <div class="table-container">
                     <h2 style="margin-bottom: 20px;">Commission Settings</h2>
@@ -1328,48 +1265,29 @@
                         </div>
                         
                         <div class="commission-item">
-                            <label>Repair/Handy Work Fee (%)</label>
-                            <input type="number" id="repairCommission" class="commission-input" value="15" min="0" max="50">
-                        </div>
-                        
-                        <div class="commission-item">
                             <label>Minimum Commission (KSH)</label>
                             <input type="number" id="minCommission" class="commission-input" value="50" min="0">
                         </div>
-                        
-                        <div class="commission-item">
-                            <label>Runner Withdrawal Fee (KSH)</label>
-                            <input type="number" id="withdrawalFee" class="commission-input" value="30" min="0">
-                        </div>
                     </div>
                     
-                    <div style="margin-top: 30px; display: flex; gap: 15px;">
-                        <button class="btn btn-primary" onclick="saveCommissionSettings()">
-                            <i class="fas fa-save"></i> Save Settings
-                        </button>
-                        <button class="btn btn-outline" onclick="resetCommissionSettings()">
-                            <i class="fas fa-undo"></i> Reset to Default
-                        </button>
-                    </div>
+                    <button class="btn btn-primary" onclick="saveCommissionSettings()" style="margin-top: 20px;">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
                 </div>
             </div>
 
-            <!-- Support Tickets Page -->
+            <!-- Support Page -->
             <div id="supportPage" class="page">
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Support Tickets</h2>
                         <div class="filter-buttons">
                             <button class="filter-btn active" data-ticket-filter="open">Open</button>
-                            <button class="filter-btn" data-ticket-filter="in-progress">In Progress</button>
                             <button class="filter-btn" data-ticket-filter="resolved">Resolved</button>
-                            <button class="filter-btn" data-ticket-filter="all">All</button>
                         </div>
                     </div>
                     
-                    <div id="ticketsList">
-                        <!-- Support tickets will be loaded here -->
-                    </div>
+                    <div id="ticketsList"></div>
                 </div>
             </div>
 
@@ -1380,22 +1298,9 @@
                         <h2>Revenue Overview</h2>
                         <canvas id="revenueChart"></canvas>
                     </div>
-                    
                     <div class="chart-card">
                         <h2>User Growth</h2>
                         <canvas id="growthChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="charts-row">
-                    <div class="chart-card">
-                        <h2>Errand Categories</h2>
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                    
-                    <div class="chart-card">
-                        <h2>Peak Hours</h2>
-                        <canvas id="peakHoursChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -1412,69 +1317,47 @@
                         </div>
                         
                         <div class="commission-item">
-                            <label>Maximum Errand Budget</label>
-                            <input type="number" id="maxBudget" class="commission-input" value="100000" min="1000">
-                        </div>
-                        
-                        <div class="commission-item">
                             <label>New User Bonus (KSH)</label>
                             <input type="number" id="newUserBonus" class="commission-input" value="5000" min="0">
-                        </div>
-                        
-                        <div class="commission-item">
-                            <label>New Runner Bonus (KSH)</label>
-                            <input type="number" id="newRunnerBonus" class="commission-input" value="2000" min="0">
                         </div>
                         
                         <div class="commission-item">
                             <label>Dispute Resolution Time (Hours)</label>
                             <input type="number" id="disputeTime" class="commission-input" value="48" min="24">
                         </div>
-                        
-                        <div class="commission-item">
-                            <label>Auto-cancel Time (Hours)</label>
-                            <input type="number" id="autoCancelTime" class="commission-input" value="24" min="12">
-                        </div>
                     </div>
                     
-                    <div style="margin-top: 30px;">
-                        <button class="btn btn-primary" onclick="saveSystemSettings()">
-                            <i class="fas fa-save"></i> Save Settings
-                        </button>
-                    </div>
+                    <button class="btn btn-primary" onclick="saveSystemSettings()" style="margin-top: 20px;">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- User Details Modal -->
+    <!-- Modals -->
     <div id="userModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>User Details</h2>
                 <button class="close-modal" onclick="closeModal('userModal')">&times;</button>
             </div>
-            <div class="modal-body" id="userModalBody">
-                <!-- User details will be loaded here -->
-            </div>
+            <div class="modal-body" id="userModalBody"></div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('userModal')">Close</button>
-                <button class="btn btn-success" onclick="approveUser()" id="approveUserBtn">Approve User</button>
+                <button class="btn btn-success" onclick="approveUser()" id="approveUserBtn" style="display: none;">Approve</button>
                 <button class="btn btn-danger" onclick="banUser()" id="banUserBtn">Ban User</button>
             </div>
         </div>
     </div>
 
-    <!-- Verification Details Modal -->
     <div id="verificationModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h2>Verification Documents</h2>
                 <button class="close-modal" onclick="closeModal('verificationModal')">&times;</button>
             </div>
-            <div class="modal-body" id="verificationModalBody">
-                <!-- Verification documents will be loaded here -->
-            </div>
+            <div class="modal-body" id="verificationModalBody"></div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('verificationModal')">Close</button>
                 <button class="btn btn-success" onclick="approveVerification()">Approve</button>
@@ -1483,16 +1366,13 @@
         </div>
     </div>
 
-    <!-- Dispute Resolution Modal -->
     <div id="disputeModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Dispute Resolution</h2>
                 <button class="close-modal" onclick="closeModal('disputeModal')">&times;</button>
             </div>
-            <div class="modal-body" id="disputeModalBody">
-                <!-- Dispute details will be loaded here -->
-            </div>
+            <div class="modal-body" id="disputeModalBody"></div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('disputeModal')">Close</button>
                 <button class="btn btn-success" onclick="resolveDispute('client')">Rule for Client</button>
@@ -1502,31 +1382,27 @@
         </div>
     </div>
 
-    <!-- Support Ticket Modal -->
     <div id="ticketModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Support Ticket</h2>
                 <button class="close-modal" onclick="closeModal('ticketModal')">&times;</button>
             </div>
-            <div class="modal-body" id="ticketModalBody">
-                <!-- Ticket details will be loaded here -->
-            </div>
+            <div class="modal-body" id="ticketModalBody"></div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('ticketModal')">Close</button>
-                <button class="btn btn-success" onclick="respondToTicket()">Send Response</button>
-                <button class="btn btn-primary" onclick="markTicketResolved()">Mark Resolved</button>
+                <button class="btn btn-primary" onclick="respondToTicket()">Send Response</button>
+                <button class="btn btn-success" onclick="markTicketResolved()">Mark Resolved</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- Toast & Loading -->
     <div id="adminToast" class="toast">
         <i id="toastIcon" class="fas fa-check-circle"></i>
-        <span id="toastMessage">Operation completed successfully!</span>
+        <span id="toastMessage"></span>
     </div>
 
-    <!-- Loading Spinner -->
     <div id="loadingSpinner" class="loading-spinner">
         <div class="spinner"></div>
     </div>
@@ -1543,28 +1419,17 @@
         };
 
         // Initialize Firebase
-        let auth, db, storage;
-        
-        try {
-            if (typeof firebase === 'undefined') {
-                throw new Error('Firebase SDK not loaded');
-            }
-            
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            db = firebase.firestore();
-            storage = firebase.storage();
-            
-            console.log('Firebase initialized successfully');
-        } catch (error) {
-            console.error('Firebase initialization error:', error);
-        }
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
         // Global Variables
         let currentAdmin = null;
         let adminData = {};
         let charts = {};
         let selectedUserId = null;
+        let selectedUserType = null;
         let selectedVerificationId = null;
         let selectedDisputeId = null;
         let selectedTicketId = null;
@@ -1577,21 +1442,29 @@
         const toast = document.getElementById('adminToast');
         const loadingSpinner = document.getElementById('loadingSpinner');
 
-        // Initialize App
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             initEventListeners();
             updateDateTime();
             setInterval(updateDateTime, 1000);
             
-            if (!auth) {
-                showLoginError('Firebase not initialized');
-                return;
-            }
-            
-            // Check if user is admin
-            auth.onAuthStateChanged(user => {
+            // Check auth state
+            auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    checkAdminStatus(user);
+                    // Check if user is admin
+                    const adminDoc = await db.collection('admins').doc(user.uid).get();
+                    
+                    if (adminDoc.exists) {
+                        currentAdmin = user;
+                        adminData = adminDoc.data();
+                        showApp();
+                        loadDashboardData();
+                    } else {
+                        // Not an admin, sign out
+                        await auth.signOut();
+                        showLogin();
+                        showLoginError('Access denied. Admin privileges required.');
+                    }
                 } else {
                     showLogin();
                 }
@@ -1601,20 +1474,12 @@
         // Event Listeners
         function initEventListeners() {
             // Login
-            const adminLoginBtn = document.getElementById('adminLoginBtn');
-            if (adminLoginBtn) {
-                adminLoginBtn.addEventListener('click', adminLogin);
-            }
+            document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
             
             // Enter key on password field
-            const passwordInput = document.getElementById('adminPassword');
-            if (passwordInput) {
-                passwordInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        adminLogin();
-                    }
-                });
-            }
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') adminLogin();
+            });
             
             // Navigation
             navLinks.forEach(link => {
@@ -1630,7 +1495,6 @@
                         navLinks.forEach(l => l.classList.remove('active'));
                         this.classList.add('active');
                         
-                        // Update page title
                         const titleSpan = document.querySelector('#currentPageTitle span');
                         const icon = this.querySelector('i').cloneNode(true);
                         document.querySelector('#currentPageTitle').innerHTML = '';
@@ -1641,16 +1505,9 @@
                 });
             });
             
-            // Search functionality
-            const userSearch = document.getElementById('userSearch');
-            if (userSearch) {
-                userSearch.addEventListener('input', debounce(filterUsers, 300));
-            }
-            
-            const errandSearch = document.getElementById('errandSearch');
-            if (errandSearch) {
-                errandSearch.addEventListener('input', debounce(filterErrands, 300));
-            }
+            // Search
+            document.getElementById('userSearch')?.addEventListener('input', debounce(filterUsers, 300));
+            document.getElementById('errandSearch')?.addEventListener('input', debounce(filterErrands, 300));
             
             // Filter buttons
             document.querySelectorAll('[data-user-filter]').forEach(btn => {
@@ -1661,47 +1518,7 @@
                 });
             });
             
-            document.querySelectorAll('[data-verification-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-verification-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterVerifications(this.getAttribute('data-verification-filter'));
-                });
-            });
-            
-            document.querySelectorAll('[data-errand-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-errand-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterErrandsByStatus(this.getAttribute('data-errand-filter'));
-                });
-            });
-            
-            document.querySelectorAll('[data-dispute-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-dispute-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterDisputes(this.getAttribute('data-dispute-filter'));
-                });
-            });
-            
-            document.querySelectorAll('[data-transaction-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-transaction-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterTransactions(this.getAttribute('data-transaction-filter'));
-                });
-            });
-            
-            document.querySelectorAll('[data-ticket-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-ticket-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterTickets(this.getAttribute('data-ticket-filter'));
-                });
-            });
-            
-            // Close modals when clicking outside
+            // Close modals on outside click
             window.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal')) {
                     e.target.classList.remove('active');
@@ -1709,7 +1526,7 @@
             });
         }
 
-        // Admin Authentication
+        // Admin Login
         async function adminLogin() {
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
@@ -1722,34 +1539,32 @@
             showLoading();
             
             try {
-                // Sign in with email/password
+                // Try to sign in
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
-                // Check if user is admin
+                // Check if admin document exists
                 const adminDoc = await db.collection('admins').doc(user.uid).get();
                 
-                if (adminDoc.exists) {
-                    currentAdmin = user;
-                    adminData = adminDoc.data();
+                if (!adminDoc.exists) {
+                    // Create admin document for this user
+                    await db.collection('admins').doc(user.uid).set({
+                        email: email,
+                        name: 'Admin User',
+                        role: 'super_admin',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        permissions: ['all']
+                    });
                     
-                    // Load dashboard data
-                    loadDashboardData();
-                    
-                    showApp();
-                    showToast('Welcome back, Admin!', 'success');
-                } else {
-                    // Not an admin, sign out
-                    await auth.signOut();
-                    showLoginError('Access denied. Admin privileges required.');
+                    showToast('Admin account created successfully!', 'success');
                 }
+                
             } catch (error) {
                 console.error('Login error:', error);
                 
-                // For demo purposes, create admin account if it doesn't exist
+                // If user doesn't exist, create new admin account
                 if (error.code === 'auth/user-not-found') {
                     try {
-                        // Create admin account
                         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                         const user = userCredential.user;
                         
@@ -1762,16 +1577,8 @@
                             permissions: ['all']
                         });
                         
-                        currentAdmin = user;
-                        adminData = {
-                            email: email,
-                            name: 'Admin User',
-                            role: 'super_admin'
-                        };
-                        
-                        loadDashboardData();
-                        showApp();
-                        showToast('Admin account created!', 'success');
+                        showToast('Admin account created! Please log in again.', 'success');
+                        await auth.signOut();
                     } catch (createError) {
                         showLoginError('Error creating admin: ' + createError.message);
                     }
@@ -1783,42 +1590,10 @@
             }
         }
 
-        async function checkAdminStatus(user) {
-            try {
-                const adminDoc = await db.collection('admins').doc(user.uid).get();
-                
-                if (adminDoc.exists) {
-                    currentAdmin = user;
-                    adminData = adminDoc.data();
-                    
-                    loadDashboardData();
-                    showApp();
-                } else {
-                    await auth.signOut();
-                    showLogin();
-                }
-            } catch (error) {
-                console.error('Check admin error:', error);
-                await auth.signOut();
-                showLogin();
-            }
-        }
-
         async function adminLogout() {
-            try {
-                await auth.signOut();
-                showToast('Logged out successfully', 'success');
-                showLogin();
-            } catch (error) {
-                console.error('Logout error:', error);
-                showToast('Error logging out', 'error');
-            }
-        }
-
-        function showLoginError(message) {
-            const loginError = document.getElementById('loginError');
-            loginError.textContent = message;
-            loginError.style.display = 'block';
+            await auth.signOut();
+            showLogin();
+            showToast('Logged out successfully', 'success');
         }
 
         // Dashboard Data Loading
@@ -1826,447 +1601,278 @@
             showLoading();
             
             try {
-                // Load stats
-                await loadStats();
-                
-                // Load pending verifications
-                await loadPendingVerifications();
-                
-                // Load recent disputes
-                await loadRecentDisputes();
-                
-                // Load all users for user management
-                await loadAllUsers();
-                
-                // Load all errands
-                await loadAllErrands();
-                
-                // Load transactions
-                await loadTransactions();
-                
-                // Load support tickets
-                await loadSupportTickets();
-                
-                // Initialize charts
-                initCharts();
-                
-                // Update badges
-                await updateBadges();
-                
+                await Promise.all([
+                    loadStats(),
+                    loadPendingVerifications(),
+                    loadRecentDisputes(),
+                    loadAllUsers(),
+                    loadAllErrands(),
+                    loadTransactions(),
+                    loadSupportTickets(),
+                    loadVerifications(),
+                    updateBadges(),
+                    initCharts()
+                ]);
             } catch (error) {
-                console.error('Load dashboard error:', error);
-                showToast('Error loading dashboard: ' + error.message, 'error');
+                console.error('Load error:', error);
+                showToast('Error loading data: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
         }
 
         async function loadStats() {
-            try {
-                // Get total users
-                const usersSnapshot = await db.collection('users').get();
-                const runnersSnapshot = await db.collection('runners').get();
-                const totalUsers = usersSnapshot.size + runnersSnapshot.size;
-                document.getElementById('totalUsers').textContent = totalUsers;
-                
-                // Get active runners
-                const activeRunnersSnapshot = await db.collection('runners').where('isAvailable', '==', true).get();
-                document.getElementById('activeRunners').textContent = activeRunnersSnapshot.size;
-                
-                // Get total errands
-                const errandsSnapshot = await db.collection('errands').get();
-                document.getElementById('totalErrands').textContent = errandsSnapshot.size;
-                
-                // Calculate total commission
-                let totalCommission = 0;
-                errandsSnapshot.forEach(doc => {
-                    const errand = doc.data();
-                    if (errand.status === 'completed') {
-                        totalCommission += errand.serviceFee || 0;
-                    }
-                });
-                document.getElementById('totalCommission').textContent = `KSH ${totalCommission.toFixed(2)}`;
-                
-                // Revenue stats for payments page
-                document.getElementById('totalRevenue').textContent = `KSH ${totalCommission.toFixed(2)}`;
-                
-                // Get pending payouts
-                const withdrawalsSnapshot = await db.collection('withdrawals').where('status', '==', 'pending').get();
-                let pendingPayouts = 0;
-                withdrawalsSnapshot.forEach(doc => {
-                    pendingPayouts += doc.data().amount || 0;
-                });
-                document.getElementById('pendingPayouts').textContent = `KSH ${pendingPayouts.toFixed(2)}`;
-                
-                // Get completed payouts
-                const completedWithdrawals = await db.collection('withdrawals').where('status', '==', 'completed').get();
-                let completedPayouts = 0;
-                completedWithdrawals.forEach(doc => {
-                    completedPayouts += doc.data().amount || 0;
-                });
-                document.getElementById('completedPayouts').textContent = `KSH ${completedPayouts.toFixed(2)}`;
-                
-            } catch (error) {
-                console.error('Load stats error:', error);
-            }
+            // Get users count
+            const usersSnap = await db.collection('users').get();
+            const runnersSnap = await db.collection('runners').get();
+            document.getElementById('totalUsers').textContent = usersSnap.size + runnersSnap.size;
+            
+            // Get active runners
+            const activeRunners = await db.collection('runners').where('isAvailable', '==', true).get();
+            document.getElementById('activeRunners').textContent = activeRunners.size;
+            
+            // Get errands count
+            const errandsSnap = await db.collection('errands').get();
+            document.getElementById('totalErrands').textContent = errandsSnap.size;
+            
+            // Calculate commission
+            let totalCommission = 0;
+            errandsSnap.forEach(doc => {
+                totalCommission += doc.data().serviceFee || 0;
+            });
+            document.getElementById('totalCommission').textContent = `KSH ${totalCommission.toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = `KSH ${totalCommission.toFixed(2)}`;
+            
+            // Calculate pending payouts
+            const withdrawalsSnap = await db.collection('withdrawals').where('status', '==', 'pending').get();
+            let pendingPayouts = 0;
+            withdrawalsSnap.forEach(doc => pendingPayouts += doc.data().amount || 0);
+            document.getElementById('pendingPayouts').textContent = `KSH ${pendingPayouts.toFixed(2)}`;
         }
 
         async function loadPendingVerifications() {
-            try {
-                const snapshot = await db.collection('verifications')
-                    .where('status', '==', 'pending')
-                    .orderBy('submittedAt', 'desc')
-                    .limit(5)
-                    .get();
+            const snapshot = await db.collection('verifications')
+                .where('status', '==', 'pending')
+                .orderBy('submittedAt', 'desc')
+                .limit(5)
+                .get();
+            
+            const tbody = document.getElementById('pendingVerificationsBody');
+            tbody.innerHTML = '';
+            
+            if (snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No pending verifications</td></tr>';
+                return;
+            }
+            
+            snapshot.forEach(doc => {
+                const v = doc.data();
+                const date = v.submittedAt ? v.submittedAt.toDate().toLocaleDateString() : 'Unknown';
                 
-                const tbody = document.getElementById('pendingVerificationsBody');
-                tbody.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No pending verifications</td></tr>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const verification = doc.data();
-                    const date = verification.submittedAt ? verification.submittedAt.toDate().toLocaleDateString() : 'Unknown';
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
+                tbody.innerHTML += `
+                    <tr>
                         <td>
                             <div class="user-cell">
-                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(verification.runnerName || 'Runner')}&background=667eea&color=fff" class="user-avatar-small">
-                                ${verification.runnerName || 'Unknown'}
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(v.runnerName || 'Runner')}&background=667eea&color=fff" class="user-avatar-small">
+                                ${v.runnerName || 'Unknown'}
                             </div>
                         </td>
                         <td>${date}</td>
                         <td><span class="status-badge status-pending">Pending</span></td>
                         <td>
-                            <div class="action-buttons">
-                                <button class="action-btn view" onclick="viewVerification('${doc.id}')">View</button>
-                                <button class="action-btn approve" onclick="approveVerification('${doc.id}')">Approve</button>
-                                <button class="action-btn reject" onclick="rejectVerification('${doc.id}')">Reject</button>
-                            </div>
+                            <button class="action-btn view" onclick="viewVerification('${doc.id}')">View</button>
+                            <button class="action-btn approve" onclick="approveVerification('${doc.id}')">Approve</button>
                         </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                
-            } catch (error) {
-                console.error('Load pending verifications error:', error);
-            }
+                    </tr>
+                `;
+            });
         }
 
         async function loadRecentDisputes() {
-            try {
-                const snapshot = await db.collection('disputes')
-                    .where('status', 'in', ['open', 'escalated'])
-                    .orderBy('createdAt', 'desc')
-                    .limit(5)
-                    .get();
-                
-                const tbody = document.getElementById('recentDisputesBody');
-                tbody.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No active disputes</td></tr>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const dispute = doc.data();
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>#${doc.id.slice(-6)}</td>
-                        <td>${dispute.clientName || 'Client'} vs ${dispute.runnerName || 'Runner'}</td>
-                        <td>KSH ${(dispute.amount || 0).toFixed(2)}</td>
-                        <td><span class="status-badge status-${dispute.status}">${dispute.status.toUpperCase()}</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button>
-                            </div>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                
-            } catch (error) {
-                console.error('Load recent disputes error:', error);
+            const snapshot = await db.collection('disputes')
+                .where('status', 'in', ['open', 'escalated'])
+                .orderBy('createdAt', 'desc')
+                .limit(5)
+                .get();
+            
+            const tbody = document.getElementById('recentDisputesBody');
+            tbody.innerHTML = '';
+            
+            if (snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No active disputes</td></tr>';
+                return;
             }
+            
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${doc.id.slice(-6)}</td>
+                        <td>${d.clientName || 'Client'} vs ${d.runnerName || 'Runner'}</td>
+                        <td>KSH ${(d.amount || 0).toFixed(2)}</td>
+                        <td><span class="status-badge status-${d.status}">${d.status.toUpperCase()}</span></td>
+                        <td><button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button></td>
+                    </tr>
+                `;
+            });
         }
 
         async function loadAllUsers() {
-            try {
-                // Get clients
-                const clientsSnapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
-                // Get runners
-                const runnersSnapshot = await db.collection('runners').orderBy('createdAt', 'desc').get();
-                
-                const tbody = document.getElementById('usersTableBody');
-                tbody.innerHTML = '';
-                
-                let allUsers = [];
-                
-                clientsSnapshot.forEach(doc => {
-                    allUsers.push({
-                        id: doc.id,
-                        type: 'client',
-                        ...doc.data()
-                    });
-                });
-                
-                runnersSnapshot.forEach(doc => {
-                    allUsers.push({
-                        id: doc.id,
-                        type: 'runner',
-                        ...doc.data()
-                    });
-                });
-                
-                // Sort by date
-                allUsers.sort((a, b) => {
-                    const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
-                    const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
-                    return dateB - dateA;
-                });
-                
-                if (allUsers.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No users found</td></tr>';
-                    return;
-                }
-                
-                allUsers.forEach(user => {
-                    const row = createUserRow(user);
-                    tbody.appendChild(row);
-                });
-                
-            } catch (error) {
-                console.error('Load all users error:', error);
-            }
+            const usersSnap = await db.collection('users').orderBy('createdAt', 'desc').get();
+            const runnersSnap = await db.collection('runners').orderBy('createdAt', 'desc').get();
+            
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            
+            usersSnap.forEach(doc => addUserToTable(doc, 'client'));
+            runnersSnap.forEach(doc => addUserToTable(doc, 'runner'));
         }
 
-        function createUserRow(user) {
-            const row = document.createElement('tr');
-            row.dataset.userId = user.id;
-            row.dataset.userType = user.type;
-            
+        function addUserToTable(doc, type) {
+            const user = doc.data();
             const date = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'Unknown';
-            const status = user.banned ? 'banned' : (user.profileComplete ? 'active' : 'incomplete');
-            const statusClass = user.banned ? 'status-banned' : (user.profileComplete ? 'status-active' : 'status-pending');
-            const statusText = user.banned ? 'BANNED' : (user.profileComplete ? 'ACTIVE' : 'INCOMPLETE');
+            const status = user.banned ? 'banned' : 'active';
             
-            row.innerHTML = `
-                <td>
-                    <div class="user-cell">
-                        <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff`}" class="user-avatar-small">
-                        ${user.name || 'Unknown'}
-                    </div>
-                </td>
-                <td>${user.type === 'runner' ? '🏃 Runner' : '👤 Client'}</td>
-                <td>${user.email || ''}</td>
-                <td>${user.phone || 'Not provided'}</td>
-                <td>${date}</td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="action-btn view" onclick="viewUser('${user.id}', '${user.type}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        ${!user.banned ? `
-                            <button class="action-btn suspend" onclick="suspendUser('${user.id}', '${user.type}')">
-                                <i class="fas fa-pause"></i> Suspend
-                            </button>
-                            <button class="action-btn ban" onclick="banUser('${user.id}', '${user.type}')">
-                                <i class="fas fa-ban"></i> Ban
-                            </button>
-                        ` : `
-                            <button class="action-btn approve" onclick="unbanUser('${user.id}', '${user.type}')">
-                                <i class="fas fa-check"></i> Unban
-                            </button>
-                        `}
-                    </div>
-                </td>
+            document.getElementById('usersTableBody').innerHTML += `
+                <tr data-user-type="${type}" data-user-id="${doc.id}">
+                    <td>
+                        <div class="user-cell">
+                            <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff`}" class="user-avatar-small">
+                            ${user.name || 'Unknown'}
+                        </div>
+                    </td>
+                    <td>${type === 'runner' ? '🏃 Runner' : '👤 Client'}</td>
+                    <td>${user.email || ''}</td>
+                    <td>${user.phone || 'Not provided'}</td>
+                    <td>${date}</td>
+                    <td><span class="status-badge status-${status}">${status.toUpperCase()}</span></td>
+                    <td>
+                        <button class="action-btn view" onclick="viewUser('${doc.id}', '${type}')">View</button>
+                        ${!user.banned ? 
+                            `<button class="action-btn ban" onclick="banUser('${doc.id}', '${type}')">Ban</button>` : 
+                            `<button class="action-btn approve" onclick="unbanUser('${doc.id}', '${type}')">Unban</button>`
+                        }
+                    </td>
+                </tr>
             `;
-            
-            return row;
         }
 
         async function loadAllErrands() {
-            try {
-                const snapshot = await db.collection('errands')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                const tbody = document.getElementById('errandsTableBody');
-                tbody.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No errands found</td></tr>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const errand = doc.data();
-                    const row = createErrandRow(errand, doc.id);
-                    tbody.appendChild(row);
-                });
-                
-            } catch (error) {
-                console.error('Load all errands error:', error);
-            }
-        }
-
-        function createErrandRow(errand, id) {
-            const row = document.createElement('tr');
+            const snapshot = await db.collection('errands').orderBy('createdAt', 'desc').get();
+            const tbody = document.getElementById('errandsTableBody');
+            tbody.innerHTML = '';
             
-            const date = errand.createdAt ? errand.createdAt.toDate().toLocaleDateString() : 'Unknown';
-            const statusClass = `status-${errand.status}`;
-            
-            row.innerHTML = `
-                <td>#${id.slice(-6)}</td>
-                <td>${errand.errandType || 'Unknown'}</td>
-                <td>${errand.clientName || 'Unknown'}</td>
-                <td>${errand.assignedRunnerName || 'Not assigned'}</td>
-                <td>KSH ${(errand.budget || 0).toFixed(2)}</td>
-                <td>KSH ${(errand.serviceFee || 0).toFixed(2)}</td>
-                <td><span class="status-badge ${statusClass}">${errand.status.toUpperCase()}</span></td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="action-btn view" onclick="viewErrand('${id}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        ${errand.status === 'disputed' ? `
-                            <button class="action-btn edit" onclick="resolveDispute('${id}')">
-                                <i class="fas fa-gavel"></i> Resolve
-                            </button>
-                        ` : ''}
-                    </div>
-                </td>
-            `;
-            
-            return row;
+            snapshot.forEach(doc => {
+                const e = doc.data();
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${doc.id.slice(-6)}</td>
+                        <td>${e.errandType || 'Unknown'}</td>
+                        <td>${e.clientName || 'Unknown'}</td>
+                        <td>${e.assignedRunnerName || 'Not assigned'}</td>
+                        <td>KSH ${(e.budget || 0).toFixed(2)}</td>
+                        <td>KSH ${(e.serviceFee || 0).toFixed(2)}</td>
+                        <td><span class="status-badge status-${e.status}">${e.status.toUpperCase()}</span></td>
+                        <td><button class="action-btn view" onclick="viewErrand('${doc.id}')">View</button></td>
+                    </tr>
+                `;
+            });
         }
 
         async function loadTransactions() {
-            try {
-                const snapshot = await db.collection('transactions')
-                    .orderBy('createdAt', 'desc')
-                    .limit(50)
-                    .get();
+            const snapshot = await db.collection('transactions').orderBy('createdAt', 'desc').limit(50).get();
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const t = doc.data();
+                const date = t.createdAt ? t.createdAt.toDate().toLocaleString() : 'Unknown';
                 
-                const tbody = document.getElementById('transactionsBody');
-                tbody.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No transactions found</td></tr>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const transaction = doc.data();
-                    const row = createTransactionRow(transaction);
-                    tbody.appendChild(row);
-                });
-                
-            } catch (error) {
-                console.error('Load transactions error:', error);
-            }
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${t.type.replace('_', ' ').toUpperCase()}</td>
+                        <td>${t.userId?.slice(-6) || 'Unknown'}</td>
+                        <td>KSH ${(t.amount || 0).toFixed(2)}</td>
+                        <td>KSH ${(t.commission || 0).toFixed(2)}</td>
+                        <td><span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span></td>
+                    </tr>
+                `;
+            });
         }
 
-        function createTransactionRow(transaction) {
-            const row = document.createElement('tr');
+        async function loadVerifications() {
+            const snapshot = await db.collection('verifications').orderBy('submittedAt', 'desc').get();
+            const tbody = document.getElementById('verificationsBody');
+            tbody.innerHTML = '';
             
-            const date = transaction.createdAt ? transaction.createdAt.toDate().toLocaleString() : 'Unknown';
-            const typeClass = transaction.type === 'escrow_deposit' ? 'status-pending' : 'status-active';
-            
-            row.innerHTML = `
-                <td>${date}</td>
-                <td><span class="status-badge ${typeClass}">${transaction.type.replace('_', ' ').toUpperCase()}</span></td>
-                <td>${transaction.userId?.slice(-6) || 'Unknown'}</td>
-                <td>KSH ${(transaction.amount || 0).toFixed(2)}</td>
-                <td>KSH ${(transaction.commission || 0).toFixed(2)}</td>
-                <td><span class="status-badge status-${transaction.status}">${transaction.status.toUpperCase()}</span></td>
-            `;
-            
-            return row;
+            snapshot.forEach(doc => {
+                const v = doc.data();
+                const date = v.submittedAt ? v.submittedAt.toDate().toLocaleDateString() : 'Unknown';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${v.runnerName || 'Unknown'}</td>
+                        <td>${date}</td>
+                        <td>${v.documents ? '✅ Uploaded' : '❌ Missing'}</td>
+                        <td><span class="status-badge status-${v.status}">${v.status.toUpperCase()}</span></td>
+                        <td>
+                            <button class="action-btn view" onclick="viewVerification('${doc.id}')">View</button>
+                            ${v.status === 'pending' ? `
+                                <button class="action-btn approve" onclick="approveVerification('${doc.id}')">Approve</button>
+                                <button class="action-btn reject" onclick="rejectVerification('${doc.id}')">Reject</button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         async function loadSupportTickets() {
-            try {
-                const snapshot = await db.collection('support')
-                    .orderBy('createdAt', 'desc')
-                    .get();
-                
-                const ticketsList = document.getElementById('ticketsList');
-                ticketsList.innerHTML = '';
-                
-                if (snapshot.empty) {
-                    ticketsList.innerHTML = '<div style="text-align: center; padding: 40px;">No support tickets found</div>';
-                    return;
-                }
-                
-                snapshot.forEach(doc => {
-                    const ticket = doc.data();
-                    const ticketCard = createTicketCard(ticket, doc.id);
-                    ticketsList.appendChild(ticketCard);
-                });
-                
-            } catch (error) {
-                console.error('Load support tickets error:', error);
-            }
-        }
-
-        function createTicketCard(ticket, id) {
-            const card = document.createElement('div');
-            card.className = 'dispute-card';
-            card.dataset.ticketId = id;
+            const snapshot = await db.collection('support').orderBy('createdAt', 'desc').get();
+            const ticketsList = document.getElementById('ticketsList');
+            ticketsList.innerHTML = '';
             
-            const date = ticket.createdAt ? ticket.createdAt.toDate().toLocaleString() : 'Unknown';
-            const statusClass = `status-${ticket.status}`;
-            
-            card.innerHTML = `
-                <div class="dispute-header">
-                    <span class="dispute-id">Ticket #${id.slice(-6)}</span>
-                    <span class="dispute-status ${statusClass}">${ticket.status.toUpperCase()}</span>
-                </div>
-                <div><strong>From:</strong> ${ticket.userName || 'Unknown'} (${ticket.userType || 'User'})</div>
-                <div><strong>Subject:</strong> ${ticket.subject || 'No subject'}</div>
-                <div class="dispute-message">${ticket.message || 'No message'}</div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                    <span style="font-size: 12px; color: var(--gray);">${date}</span>
-                    <div class="action-buttons">
-                        <button class="action-btn view" onclick="viewTicket('${id}')">Respond</button>
-                        <button class="action-btn approve" onclick="markTicketResolved('${id}')">Resolve</button>
+            snapshot.forEach(doc => {
+                const t = doc.data();
+                const date = t.createdAt ? t.createdAt.toDate().toLocaleString() : 'Unknown';
+                
+                ticketsList.innerHTML += `
+                    <div class="dispute-card" data-ticket-id="${doc.id}">
+                        <div class="dispute-header">
+                            <span class="dispute-id">Ticket #${doc.id.slice(-6)}</span>
+                            <span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span>
+                        </div>
+                        <div><strong>From:</strong> ${t.userName || 'Unknown'}</div>
+                        <div><strong>Subject:</strong> ${t.subject || 'No subject'}</div>
+                        <div class="dispute-message">${t.message || 'No message'}</div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                            <span style="font-size: 12px;">${date}</span>
+                            <div>
+                                <button class="action-btn view" onclick="viewTicket('${doc.id}')">Respond</button>
+                                ${t.status !== 'resolved' ? 
+                                    `<button class="action-btn approve" onclick="markTicketResolved('${doc.id}')">Resolve</button>` : ''
+                                }
+                            </div>
+                        </div>
                     </div>
-                </div>
-            `;
-            
-            return card;
+                `;
+            });
         }
 
         async function updateBadges() {
-            try {
-                // Pending verifications
-                const verificationsSnapshot = await db.collection('verifications').where('status', '==', 'pending').get();
-                document.getElementById('pendingVerificationsBadge').textContent = verificationsSnapshot.size;
-                
-                // Active disputes
-                const disputesSnapshot = await db.collection('disputes').where('status', '==', 'open').get();
-                document.getElementById('disputesBadge').textContent = disputesSnapshot.size;
-                
-                // Open support tickets
-                const ticketsSnapshot = await db.collection('support').where('status', '==', 'open').get();
-                document.getElementById('supportBadge').textContent = ticketsSnapshot.size;
-                
-                // Pending users (incomplete profiles)
-                const pendingUsersSnapshot = await db.collection('users').where('profileComplete', '==', false).get();
-                const pendingRunnersSnapshot = await db.collection('runners').where('profileComplete', '==', false).get();
-                document.getElementById('pendingUsersBadge').textContent = pendingUsersSnapshot.size + pendingRunnersSnapshot.size;
-                
-            } catch (error) {
-                console.error('Update badges error:', error);
-            }
+            const pendingVerifications = await db.collection('verifications').where('status', '==', 'pending').get();
+            document.getElementById('pendingVerificationsBadge').textContent = pendingVerifications.size;
+            
+            const openDisputes = await db.collection('disputes').where('status', '==', 'open').get();
+            document.getElementById('disputesBadge').textContent = openDisputes.size;
+            
+            const openTickets = await db.collection('support').where('status', '==', 'open').get();
+            document.getElementById('supportBadge').textContent = openTickets.size;
+            
+            const incompleteUsers = await db.collection('users').where('profileComplete', '==', false).get();
+            const incompleteRunners = await db.collection('runners').where('profileComplete', '==', false).get();
+            document.getElementById('pendingUsersBadge').textContent = incompleteUsers.size + incompleteRunners.size;
         }
 
         // Chart Functions
@@ -2285,23 +1891,7 @@
                             backgroundColor: 'rgba(102, 126, 234, 0.1)',
                             tension: 0.4,
                             fill: true
-                        }, {
-                            label: 'New Users',
-                            data: [8, 12, 10, 14, 18, 22, 20],
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4,
-                            fill: true
                         }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
                     }
                 });
             }
@@ -2315,18 +1905,8 @@
                         labels: ['Clients', 'Runners'],
                         datasets: [{
                             data: [65, 35],
-                            backgroundColor: ['#667eea', '#10b981'],
-                            borderWidth: 0
+                            backgroundColor: ['#667eea', '#10b981']
                         }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
                     }
                 });
             }
@@ -2362,294 +1942,112 @@
                     }
                 });
             }
-            
-            // Category Chart
-            const categoryCtx = document.getElementById('categoryChart')?.getContext('2d');
-            if (categoryCtx) {
-                charts.category = new Chart(categoryCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Delivery', 'Shopping', 'Repair', 'Mama Fua', 'Other'],
-                        datasets: [{
-                            data: [40, 25, 15, 12, 8],
-                            backgroundColor: ['#667eea', '#10b981', '#f59e0b', '#ef4444', '#9ca3af']
-                        }]
-                    }
-                });
-            }
-            
-            // Peak Hours Chart
-            const peakCtx = document.getElementById('peakHoursChart')?.getContext('2d');
-            if (peakCtx) {
-                charts.peak = new Chart(peakCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['6am', '9am', '12pm', '3pm', '6pm', '9pm', '12am'],
-                        datasets: [{
-                            label: 'Errands',
-                            data: [5, 25, 45, 60, 80, 50, 15],
-                            borderColor: '#f59e0b',
-                            fill: false
-                        }]
-                    }
-                });
-            }
         }
 
         // Filter Functions
         function filterUsers() {
             const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-            const rows = document.querySelectorAll('#usersTableBody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            document.querySelectorAll('#usersTableBody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
             });
         }
 
         function filterUsersByType(type) {
-            const rows = document.querySelectorAll('#usersTableBody tr');
-            
-            rows.forEach(row => {
-                if (type === 'all') {
-                    row.style.display = '';
-                } else {
-                    const userType = row.dataset.userType;
-                    row.style.display = userType === type ? '' : 'none';
-                }
+            document.querySelectorAll('#usersTableBody tr').forEach(row => {
+                if (type === 'all') row.style.display = '';
+                else row.style.display = row.dataset.userType === type ? '' : 'none';
             });
         }
 
         function filterErrands() {
             const searchTerm = document.getElementById('errandSearch').value.toLowerCase();
-            const rows = document.querySelectorAll('#errandsTableBody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        }
-
-        function filterErrandsByStatus(status) {
-            const rows = document.querySelectorAll('#errandsTableBody tr');
-            
-            rows.forEach(row => {
-                if (status === 'all') {
-                    row.style.display = '';
-                } else {
-                    const statusCell = row.querySelector('td:nth-child(7) span');
-                    if (statusCell) {
-                        const rowStatus = statusCell.textContent.toLowerCase();
-                        row.style.display = rowStatus === status ? '' : 'none';
-                    }
-                }
-            });
-        }
-
-        function filterVerifications(status) {
-            // Implementation depends on how you display verifications
-            console.log('Filter verifications by:', status);
-        }
-
-        function filterDisputes(status) {
-            const cards = document.querySelectorAll('#disputesList .dispute-card');
-            
-            cards.forEach(card => {
-                if (status === 'all') {
-                    card.style.display = '';
-                } else {
-                    const statusSpan = card.querySelector('.dispute-status');
-                    if (statusSpan) {
-                        const cardStatus = statusSpan.textContent.toLowerCase();
-                        card.style.display = cardStatus.includes(status) ? '' : 'none';
-                    }
-                }
-            });
-        }
-
-        function filterTransactions(type) {
-            const rows = document.querySelectorAll('#transactionsBody tr');
-            
-            rows.forEach(row => {
-                if (type === 'all') {
-                    row.style.display = '';
-                } else {
-                    const typeCell = row.querySelector('td:nth-child(2) span');
-                    if (typeCell) {
-                        const rowType = typeCell.textContent.toLowerCase();
-                        row.style.display = rowType.includes(type) ? '' : 'none';
-                    }
-                }
-            });
-        }
-
-        function filterTickets(status) {
-            const cards = document.querySelectorAll('#ticketsList .dispute-card');
-            
-            cards.forEach(card => {
-                if (status === 'all') {
-                    card.style.display = '';
-                } else {
-                    const statusSpan = card.querySelector('.dispute-status');
-                    if (statusSpan) {
-                        const cardStatus = statusSpan.textContent.toLowerCase();
-                        card.style.display = cardStatus.includes(status) ? '' : 'none';
-                    }
-                }
+            document.querySelectorAll('#errandsTableBody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
             });
         }
 
         // User Actions
         async function viewUser(userId, type) {
             selectedUserId = userId;
+            selectedUserType = type;
             
-            try {
-                const collection = type === 'runner' ? 'runners' : 'users';
-                const userDoc = await db.collection(collection).doc(userId).get();
-                
-                if (!userDoc.exists) return;
-                
-                const user = userDoc.data();
-                const modalBody = document.getElementById('userModalBody');
-                
-                modalBody.innerHTML = `
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=100&background=667eea&color=fff`}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
-                        <h3 style="margin-top: 10px;">${user.name || 'Unknown'}</h3>
-                        <p>${type === 'runner' ? '🏃 Runner' : '👤 Client'}</p>
-                    </div>
-                    
-                    <div style="display: grid; gap: 10px;">
-                        <div><strong>Email:</strong> ${user.email || 'Not provided'}</div>
-                        <div><strong>Phone:</strong> ${user.phone || 'Not provided'}</div>
-                        <div><strong>Joined:</strong> ${user.createdAt ? user.createdAt.toDate().toLocaleString() : 'Unknown'}</div>
-                        ${type === 'runner' ? `
-                            <div><strong>Verification Status:</strong> <span class="status-badge status-${user.verificationStatus || 'pending'}">${(user.verificationStatus || 'pending').toUpperCase()}</span></div>
-                            <div><strong>Total Jobs:</strong> ${user.totalJobs || 0}</div>
-                            <div><strong>Total Earnings:</strong> KSH ${(user.totalEarnings || 0).toFixed(2)}</div>
-                            <div><strong>Rating:</strong> ⭐ ${user.rating || '0.0'}</div>
-                        ` : `
-                            <div><strong>Total Errands:</strong> ${user.totalErrands || 0}</div>
-                            <div><strong>Total Spent:</strong> KSH ${(user.totalSpent || 0).toFixed(2)}</div>
-                        `}
-                        <div><strong>Wallet Balance:</strong> KSH ${(user.walletBalance || 0).toFixed(2)}</div>
-                        <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
-                    </div>
-                `;
-                
-                // Show/hide action buttons based on status
-                document.getElementById('approveUserBtn').style.display = user.banned ? 'none' : 'inline-flex';
-                document.getElementById('banUserBtn').style.display = user.banned ? 'none' : 'inline-flex';
-                
-                showModal('userModal');
-                
-            } catch (error) {
-                console.error('View user error:', error);
-                showToast('Error loading user details', 'error');
-            }
+            const collection = type === 'runner' ? 'runners' : 'users';
+            const doc = await db.collection(collection).doc(userId).get();
+            const user = doc.data();
+            
+            document.getElementById('userModalBody').innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=100&background=667eea&color=fff`}" style="width: 100px; height: 100px; border-radius: 50%;">
+                    <h3>${user.name || 'Unknown'}</h3>
+                    <p>${type === 'runner' ? '🏃 Runner' : '👤 Client'}</p>
+                </div>
+                <div><strong>Email:</strong> ${user.email || 'Not provided'}</div>
+                <div><strong>Phone:</strong> ${user.phone || 'Not provided'}</div>
+                <div><strong>Joined:</strong> ${user.createdAt ? user.createdAt.toDate().toLocaleString() : 'Unknown'}</div>
+                <div><strong>Wallet Balance:</strong> KSH ${(user.walletBalance || 0).toFixed(2)}</div>
+                <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
+            `;
+            
+            document.getElementById('banUserBtn').textContent = user.banned ? 'Unban User' : 'Ban User';
+            showModal('userModal');
         }
 
-        async function banUser(userId, type) {
-            if (!confirm('Are you sure you want to ban this user? They will not be able to access the platform.')) return;
+        async function banUser() {
+            if (!selectedUserId) return;
+            
+            const action = document.getElementById('banUserBtn').textContent === 'Unban User' ? 'unban' : 'ban';
+            if (!confirm(`Are you sure you want to ${action} this user?`)) return;
             
             showLoading();
             
             try {
-                const collection = type === 'runner' ? 'runners' : 'users';
-                await db.collection(collection).doc(userId).update({
-                    banned: true,
-                    bannedAt: firebase.firestore.FieldValue.serverTimestamp()
+                const collection = selectedUserType === 'runner' ? 'runners' : 'users';
+                await db.collection(collection).doc(selectedUserId).update({
+                    banned: action === 'ban'
                 });
                 
-                showToast('User banned successfully', 'success');
+                showToast(`User ${action}ned successfully`, 'success');
                 closeModal('userModal');
-                loadAllUsers(); // Refresh the list
-                
+                loadAllUsers();
             } catch (error) {
-                console.error('Ban user error:', error);
-                showToast('Error banning user: ' + error.message, 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
         }
 
         async function unbanUser(userId, type) {
-            if (!confirm('Unban this user?')) return;
-            
-            showLoading();
-            
-            try {
-                const collection = type === 'runner' ? 'runners' : 'users';
-                await db.collection(collection).doc(userId).update({
-                    banned: false
-                });
-                
-                showToast('User unbanned successfully', 'success');
-                loadAllUsers();
-                
-            } catch (error) {
-                console.error('Unban user error:', error);
-                showToast('Error unbanning user', 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function suspendUser(userId, type) {
-            if (!confirm('Suspend this user temporarily?')) return;
-            
-            showLoading();
-            
-            try {
-                const collection = type === 'runner' ? 'runners' : 'users';
-                await db.collection(collection).doc(userId).update({
-                    suspended: true,
-                    suspendedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showToast('User suspended', 'success');
-                loadAllUsers();
-                
-            } catch (error) {
-                console.error('Suspend user error:', error);
-                showToast('Error suspending user', 'error');
-            } finally {
-                hideLoading();
-            }
+            selectedUserId = userId;
+            selectedUserType = type;
+            await banUser();
         }
 
         // Verification Actions
         async function viewVerification(verificationId) {
             selectedVerificationId = verificationId;
             
-            try {
-                const verificationDoc = await db.collection('verifications').doc(verificationId).get();
-                const verification = verificationDoc.data();
-                
-                const modalBody = document.getElementById('verificationModalBody');
-                
-                modalBody.innerHTML = `
-                    <h3>Runner: ${verification.runnerName || 'Unknown'}</h3>
-                    <p>Submitted: ${verification.submittedAt ? verification.submittedAt.toDate().toLocaleString() : 'Unknown'}</p>
-                    
-                    <div style="margin-top: 20px;">
-                        <h4>ID Front:</h4>
-                        <img src="${verification.documents?.idFront}" style="max-width: 100%; border-radius: var(--radius); margin-bottom: 20px;">
-                        
-                        <h4>ID Back:</h4>
-                        <img src="${verification.documents?.idBack}" style="max-width: 100%; border-radius: var(--radius); margin-bottom: 20px;">
-                        
-                        <h4>Selfie with ID:</h4>
-                        <img src="${verification.documents?.selfie}" style="max-width: 100%; border-radius: var(--radius);">
-                    </div>
-                `;
-                
-                showModal('verificationModal');
-                
-            } catch (error) {
-                console.error('View verification error:', error);
-                showToast('Error loading verification', 'error');
+            const doc = await db.collection('verifications').doc(verificationId).get();
+            const v = doc.data();
+            
+            let docsHtml = '';
+            if (v.documents) {
+                for (let [key, url] of Object.entries(v.documents)) {
+                    docsHtml += `
+                        <div class="verification-doc">
+                            <strong>${key}:</strong>
+                            <img src="${url}" onclick="window.open('${url}')">
+                        </div>
+                    `;
+                }
             }
+            
+            document.getElementById('verificationModalBody').innerHTML = `
+                <h3>Runner: ${v.runnerName || 'Unknown'}</h3>
+                <p>Submitted: ${v.submittedAt ? v.submittedAt.toDate().toLocaleString() : 'Unknown'}</p>
+                ${docsHtml}
+            `;
+            
+            showModal('verificationModal');
         }
 
         async function approveVerification(verificationId) {
@@ -2659,33 +2057,23 @@
             showLoading();
             
             try {
-                // Update verification status
-                await db.collection('verifications').doc(id).update({
-                    status: 'approved',
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    reviewedBy: currentAdmin.uid
-                });
-                
-                // Get verification to find runner ID
                 const verificationDoc = await db.collection('verifications').doc(id).get();
                 const verification = verificationDoc.data();
                 
-                // Update runner status
+                await db.collection('verifications').doc(id).update({
+                    status: 'approved',
+                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
                 await db.collection('runners').doc(verification.runnerId).update({
-                    verificationStatus: 'verified',
-                    verifiedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    verificationStatus: 'verified'
                 });
                 
                 showToast('Verification approved!', 'success');
                 closeModal('verificationModal');
-                
-                // Refresh data
-                loadPendingVerifications();
-                updateBadges();
-                
+                loadDashboardData();
             } catch (error) {
-                console.error('Approve verification error:', error);
-                showToast('Error approving verification', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
@@ -2695,7 +2083,7 @@
             const id = verificationId || selectedVerificationId;
             if (!id) return;
             
-            const reason = prompt('Please provide a reason for rejection:');
+            const reason = prompt('Reason for rejection:');
             if (!reason) return;
             
             showLoading();
@@ -2704,30 +2092,14 @@
                 await db.collection('verifications').doc(id).update({
                     status: 'rejected',
                     rejectionReason: reason,
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    reviewedBy: currentAdmin.uid
-                });
-                
-                // Get verification to find runner ID
-                const verificationDoc = await db.collection('verifications').doc(id).get();
-                const verification = verificationDoc.data();
-                
-                // Update runner status
-                await db.collection('runners').doc(verification.runnerId).update({
-                    verificationStatus: 'rejected',
-                    verificationRejectionReason: reason
+                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 showToast('Verification rejected', 'success');
                 closeModal('verificationModal');
-                
-                // Refresh data
-                loadPendingVerifications();
-                updateBadges();
-                
+                loadDashboardData();
             } catch (error) {
-                console.error('Reject verification error:', error);
-                showToast('Error rejecting verification', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
@@ -2737,116 +2109,43 @@
         async function viewDispute(disputeId) {
             selectedDisputeId = disputeId;
             
-            try {
-                const disputeDoc = await db.collection('disputes').doc(disputeId).get();
-                const dispute = disputeDoc.data();
-                
-                const modalBody = document.getElementById('disputeModalBody');
-                
-                modalBody.innerHTML = `
-                    <div class="dispute-header">
-                        <span class="dispute-id">Dispute #${disputeId.slice(-6)}</span>
-                        <span class="dispute-status status-${dispute.status}">${dispute.status.toUpperCase()}</span>
-                    </div>
-                    
-                    <div style="margin-top: 20px;">
-                        <div><strong>Client:</strong> ${dispute.clientName || 'Unknown'}</div>
-                        <div><strong>Runner:</strong> ${dispute.runnerName || 'Unknown'}</div>
-                        <div><strong>Errand ID:</strong> #${dispute.errandId?.slice(-6) || 'Unknown'}</div>
-                        <div><strong>Amount in Escrow:</strong> KSH ${(dispute.amount || 0).toFixed(2)}</div>
-                    </div>
-                    
-                    <h4 style="margin-top: 20px;">Client's Claim:</h4>
-                    <div class="dispute-message">${dispute.clientMessage || 'No message'}</div>
-                    
-                    <h4>Runner's Response:</h4>
-                    <div class="dispute-message">${dispute.runnerMessage || 'No response yet'}</div>
-                    
-                    <h4>Evidence:</h4>
-                    ${dispute.evidence ? `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
-                            ${dispute.evidence.map(url => `
-                                <img src="${url}" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--radius); cursor: pointer;" onclick="window.open('${url}')">
-                            `).join('')}
-                        </div>
-                    ` : '<p>No evidence provided</p>'}
-                `;
-                
-                showModal('disputeModal');
-                
-            } catch (error) {
-                console.error('View dispute error:', error);
-                showToast('Error loading dispute', 'error');
-            }
+            const doc = await db.collection('disputes').doc(disputeId).get();
+            const d = doc.data();
+            
+            document.getElementById('disputeModalBody').innerHTML = `
+                <div class="dispute-header">
+                    <span class="dispute-id">Dispute #${disputeId.slice(-6)}</span>
+                    <span class="status-badge status-${d.status}">${d.status.toUpperCase()}</span>
+                </div>
+                <div><strong>Client:</strong> ${d.clientName || 'Unknown'}</div>
+                <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'}</div>
+                <div><strong>Amount:</strong> KSH ${(d.amount || 0).toFixed(2)}</div>
+                <h4>Client's Claim:</h4>
+                <div class="dispute-message">${d.clientMessage || 'No message'}</div>
+                <h4>Runner's Response:</h4>
+                <div class="dispute-message">${d.runnerMessage || 'No response'}</div>
+            `;
+            
+            showModal('disputeModal');
         }
 
         async function resolveDispute(ruling) {
             if (!selectedDisputeId) return;
             
-            if (!confirm(`Resolve dispute in favor of the ${ruling}? This action cannot be undone.`)) return;
-            
             showLoading();
             
             try {
-                const disputeDoc = await db.collection('disputes').doc(selectedDisputeId).get();
-                const dispute = disputeDoc.data();
-                
-                // Update dispute status
                 await db.collection('disputes').doc(selectedDisputeId).update({
                     status: 'resolved',
-                    resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    resolvedBy: currentAdmin.uid,
-                    ruling: ruling
-                });
-                
-                // Release escrow based on ruling
-                if (ruling === 'client') {
-                    // Refund client
-                    await db.collection('users').doc(dispute.clientId).update({
-                        walletBalance: firebase.firestore.FieldValue.increment(dispute.amount)
-                    });
-                    
-                    // Log transaction
-                    await db.collection('transactions').add({
-                        userId: dispute.clientId,
-                        amount: dispute.amount,
-                        type: 'dispute_refund',
-                        status: 'completed',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } else {
-                    // Pay runner
-                    await db.collection('runners').doc(dispute.runnerId).update({
-                        walletBalance: firebase.firestore.FieldValue.increment(dispute.amount),
-                        totalEarnings: firebase.firestore.FieldValue.increment(dispute.amount)
-                    });
-                    
-                    // Log transaction
-                    await db.collection('transactions').add({
-                        userId: dispute.runnerId,
-                        amount: dispute.amount,
-                        type: 'dispute_payment',
-                        status: 'completed',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                
-                // Update errand status
-                await db.collection('errands').doc(dispute.errandId).update({
-                    status: 'dispute_resolved',
-                    disputeRuling: ruling
+                    ruling: ruling,
+                    resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
                 showToast(`Dispute resolved in favor of ${ruling}`, 'success');
                 closeModal('disputeModal');
-                
-                // Refresh data
-                loadRecentDisputes();
-                updateBadges();
-                
+                loadDashboardData();
             } catch (error) {
-                console.error('Resolve dispute error:', error);
-                showToast('Error resolving dispute', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
@@ -2859,73 +2158,43 @@
             
             try {
                 await db.collection('disputes').doc(selectedDisputeId).update({
-                    status: 'escalated',
-                    escalatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    escalatedBy: currentAdmin.uid
+                    status: 'escalated'
                 });
                 
-                showToast('Dispute escalated to higher admin', 'success');
+                showToast('Dispute escalated', 'success');
                 closeModal('disputeModal');
-                
-                // Refresh data
-                loadRecentDisputes();
-                updateBadges();
-                
+                loadDashboardData();
             } catch (error) {
-                console.error('Escalate dispute error:', error);
-                showToast('Error escalating dispute', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
         }
 
-        // Support Ticket Actions
+        // Ticket Actions
         async function viewTicket(ticketId) {
             selectedTicketId = ticketId;
             
-            try {
-                const ticketDoc = await db.collection('support').doc(ticketId).get();
-                const ticket = ticketDoc.data();
-                
-                const modalBody = document.getElementById('ticketModalBody');
-                
-                modalBody.innerHTML = `
-                    <h3>${ticket.subject || 'Support Ticket'}</h3>
-                    <p><strong>From:</strong> ${ticket.userName || 'Unknown'} (${ticket.userType || 'User'})</p>
-                    <p><strong>Date:</strong> ${ticket.createdAt ? ticket.createdAt.toDate().toLocaleString() : 'Unknown'}</p>
-                    
-                    <div class="dispute-message" style="margin: 20px 0;">
-                        ${ticket.message || 'No message'}
-                    </div>
-                    
-                    ${ticket.response ? `
-                        <h4>Previous Response:</h4>
-                        <div class="dispute-message" style="background-color: #e3f2fd;">
-                            ${ticket.response}
-                        </div>
-                        <p style="font-size: 12px; color: var(--gray);">${ticket.respondedAt ? ticket.respondedAt.toDate().toLocaleString() : ''}</p>
-                    ` : ''}
-                    
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label">Your Response:</label>
-                        <textarea id="ticketResponse" class="form-control" rows="4" placeholder="Type your response..."></textarea>
-                    </div>
-                `;
-                
-                showModal('ticketModal');
-                
-            } catch (error) {
-                console.error('View ticket error:', error);
-                showToast('Error loading ticket', 'error');
-            }
+            const doc = await db.collection('support').doc(ticketId).get();
+            const t = doc.data();
+            
+            document.getElementById('ticketModalBody').innerHTML = `
+                <h3>${t.subject || 'Support Ticket'}</h3>
+                <p><strong>From:</strong> ${t.userName || 'Unknown'}</p>
+                <p><strong>Date:</strong> ${t.createdAt ? t.createdAt.toDate().toLocaleString() : 'Unknown'}</p>
+                <div class="dispute-message">${t.message || 'No message'}</div>
+                <div class="form-group">
+                    <label class="form-label">Response:</label>
+                    <textarea id="ticketResponse" class="form-control" rows="4"></textarea>
+                </div>
+            `;
+            
+            showModal('ticketModal');
         }
 
         async function respondToTicket() {
             const response = document.getElementById('ticketResponse')?.value;
-            if (!response) {
-                showToast('Please enter a response', 'warning');
-                return;
-            }
+            if (!response) return;
             
             showLoading();
             
@@ -2933,17 +2202,14 @@
                 await db.collection('support').doc(selectedTicketId).update({
                     response: response,
                     respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    respondedBy: currentAdmin.uid,
                     status: 'in-progress'
                 });
                 
-                showToast('Response sent successfully', 'success');
+                showToast('Response sent', 'success');
                 closeModal('ticketModal');
                 loadSupportTickets();
-                
             } catch (error) {
-                console.error('Respond to ticket error:', error);
-                showToast('Error sending response', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
@@ -2957,88 +2223,55 @@
             
             try {
                 await db.collection('support').doc(id).update({
-                    status: 'resolved',
-                    resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    resolvedBy: currentAdmin.uid
+                    status: 'resolved'
                 });
                 
-                showToast('Ticket marked as resolved', 'success');
+                showToast('Ticket resolved', 'success');
                 closeModal('ticketModal');
                 loadSupportTickets();
-                updateBadges();
-                
             } catch (error) {
-                console.error('Resolve ticket error:', error);
-                showToast('Error resolving ticket', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
         }
 
-        // Errand Actions
-        async function viewErrand(errandId) {
-            // Implementation for viewing errand details
-            showToast('View errand details - Coming soon', 'info');
-        }
-
-        // Commission Settings
+        // Settings Functions
         async function saveCommissionSettings() {
             const settings = {
                 defaultCommission: parseFloat(document.getElementById('defaultCommission').value),
                 deliveryCommission: parseFloat(document.getElementById('deliveryCommission').value),
                 shoppingCommission: parseFloat(document.getElementById('shoppingCommission').value),
-                repairCommission: parseFloat(document.getElementById('repairCommission').value),
                 minCommission: parseFloat(document.getElementById('minCommission').value),
-                withdrawalFee: parseFloat(document.getElementById('withdrawalFee').value),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedBy: currentAdmin.uid
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
             showLoading();
             
             try {
                 await db.collection('settings').doc('commission').set(settings, { merge: true });
-                showToast('Commission settings saved successfully', 'success');
+                showToast('Settings saved', 'success');
             } catch (error) {
-                console.error('Save commission error:', error);
-                showToast('Error saving settings', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
         }
 
-        async function resetCommissionSettings() {
-            if (!confirm('Reset commission settings to defaults?')) return;
-            
-            document.getElementById('defaultCommission').value = '20';
-            document.getElementById('deliveryCommission').value = '20';
-            document.getElementById('shoppingCommission').value = '15';
-            document.getElementById('repairCommission').value = '15';
-            document.getElementById('minCommission').value = '50';
-            document.getElementById('withdrawalFee').value = '30';
-        }
-
-        // System Settings
         async function saveSystemSettings() {
             const settings = {
                 minBudget: parseFloat(document.getElementById('minBudget').value),
-                maxBudget: parseFloat(document.getElementById('maxBudget').value),
                 newUserBonus: parseFloat(document.getElementById('newUserBonus').value),
-                newRunnerBonus: parseFloat(document.getElementById('newRunnerBonus').value),
-                disputeTime: parseInt(document.getElementById('disputeTime').value),
-                autoCancelTime: parseInt(document.getElementById('autoCancelTime').value),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedBy: currentAdmin.uid
+                disputeTime: parseInt(document.getElementById('disputeTime').value)
             };
             
             showLoading();
             
             try {
                 await db.collection('settings').doc('system').set(settings, { merge: true });
-                showToast('System settings saved successfully', 'success');
+                showToast('Settings saved', 'success');
             } catch (error) {
-                console.error('Save system settings error:', error);
-                showToast('Error saving settings', 'error');
+                showToast('Error: ' + error.message, 'error');
             } finally {
                 hideLoading();
             }
@@ -3046,8 +2279,7 @@
 
         // Utility Functions
         function updateDateTime() {
-            const now = new Date();
-            document.getElementById('currentDateTime').textContent = now.toLocaleString('en-US', {
+            document.getElementById('currentDateTime').textContent = new Date().toLocaleString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
@@ -3060,10 +2292,7 @@
 
         function showPage(pageId) {
             pages.forEach(page => page.classList.remove('active'));
-            const pageElement = document.getElementById(`${pageId}Page`);
-            if (pageElement) {
-                pageElement.classList.add('active');
-            }
+            document.getElementById(`${pageId}Page`).classList.add('active');
         }
 
         function showModal(modalId) {
@@ -3077,12 +2306,9 @@
         function showToast(message, type = 'info') {
             toast.className = `toast ${type}`;
             document.getElementById('toastMessage').textContent = message;
-            
-            const icon = document.getElementById('toastIcon');
-            if (type === 'success') icon.className = 'fas fa-check-circle';
-            else if (type === 'error') icon.className = 'fas fa-exclamation-circle';
-            else icon.className = 'fas fa-info-circle';
-            
+            document.getElementById('toastIcon').className = type === 'success' ? 'fas fa-check-circle' : 
+                                                             type === 'error' ? 'fas fa-exclamation-circle' : 
+                                                             'fas fa-info-circle';
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
@@ -3098,7 +2324,7 @@
         function showApp() {
             loginPage.style.display = 'none';
             adminDashboard.style.display = 'flex';
-            document.getElementById('adminName').textContent = adminData.name || 'Admin';
+            document.getElementById('adminName').textContent = adminData?.name || 'Admin';
         }
 
         function showLogin() {
@@ -3106,23 +2332,29 @@
             adminDashboard.style.display = 'none';
         }
 
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
         function debounce(func, wait) {
             let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
+            return function(...args) {
                 clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
+                timeout = setTimeout(() => func(...args), wait);
             };
         }
 
-        // Make functions globally available
+        // View Errand placeholder
+        function viewErrand(errandId) {
+            showToast('View errand details - Coming soon', 'info');
+        }
+
+        // Global functions
         window.viewUser = viewUser;
         window.banUser = banUser;
         window.unbanUser = unbanUser;
-        window.suspendUser = suspendUser;
         window.viewVerification = viewVerification;
         window.approveVerification = approveVerification;
         window.rejectVerification = rejectVerification;
@@ -3134,7 +2366,6 @@
         window.respondToTicket = respondToTicket;
         window.markTicketResolved = markTicketResolved;
         window.saveCommissionSettings = saveCommissionSettings;
-        window.resetCommissionSettings = resetCommissionSettings;
         window.saveSystemSettings = saveSystemSettings;
         window.showPage = showPage;
         window.showModal = showModal;
