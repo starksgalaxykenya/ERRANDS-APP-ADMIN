@@ -2260,35 +2260,49 @@
 
     async function loadAllWithdrawals() {
         try {
-            const snapshot = await db.collection('withdrawals').where('status', '==', 'pending').orderBy('createdAt', 'desc').get();
+            // Fixed query - order by createdAt first, then filter
+            const snapshot = await db.collection('withdrawals')
+                .orderBy('createdAt', 'desc')
+                .get();
             
             const tbody = document.getElementById('withdrawalsBody');
             tbody.innerHTML = '';
             
             if (snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No pending withdrawals</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No withdrawals found</td></tr>';
                 return;
             }
             
+            // Filter in memory instead of in query
+            let pendingCount = 0;
             snapshot.forEach(doc => {
                 const w = doc.data();
-                const date = w.createdAt ? w.createdAt.toDate().toLocaleString() : 'Unknown';
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${date}</td>
-                        <td>${w.runnerName || 'Unknown'}</td>
-                        <td>KSH ${(w.amount || 0).toFixed(2)}</td>
-                        <td>${w.method || 'Bank Transfer'}</td>
-                        <td>
-                            <button class="action-btn approve" onclick="processWithdrawal('${doc.id}')">Process</button>
-                            <button class="action-btn reject" onclick="rejectWithdrawal('${doc.id}')">Reject</button>
-                        </td>
-                    </tr>
-                `;
+                if (w.status === 'pending') {
+                    pendingCount++;
+                    const date = w.createdAt ? w.createdAt.toDate().toLocaleString() : 'Unknown';
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${w.runnerName || 'Unknown'}</td>
+                            <td>KSH ${(w.amount || 0).toFixed(2)}</td>
+                            <td>${w.method || 'Bank Transfer'}</td>
+                            <td>
+                                <button class="action-btn approve" onclick="processWithdrawal('${doc.id}')">Process</button>
+                                <button class="action-btn reject" onclick="rejectWithdrawal('${doc.id}')">Reject</button>
+                            </td>
+                        </tr>
+                    `;
+                }
             });
+            
+            if (pendingCount === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No pending withdrawals</td></tr>';
+            }
         } catch (error) {
             console.error('Load withdrawals error:', error);
+            // Show fallback message
+            document.getElementById('withdrawalsBody').innerHTML = '<tr><td colspan="5" style="text-align: center;">Error loading withdrawals. Please check console.</td></tr>';
         }
     }
 
@@ -2413,8 +2427,8 @@
 
     async function loadCommissionHistory() {
         try {
+            // Fixed query - order by createdAt first, then filter in memory
             const snapshot = await db.collection('transactions')
-                .where('commission', '>', 0)
                 .orderBy('createdAt', 'desc')
                 .limit(50)
                 .get();
@@ -2427,23 +2441,33 @@
                 return;
             }
             
+            let commissionCount = 0;
             snapshot.forEach(doc => {
                 const t = doc.data();
-                const date = t.createdAt ? t.createdAt.toDate().toLocaleString() : 'Unknown';
-                const rate = t.budget && t.commission ? ((t.commission / t.budget) * 100).toFixed(1) : 'N/A';
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${date}</td>
-                        <td>#${t.errandId?.slice(-6) || 'N/A'}</td>
-                        <td>KSH ${(t.budget || 0).toFixed(2)}</td>
-                        <td>KSH ${(t.commission || 0).toFixed(2)}</td>
-                        <td>${rate}%</td>
-                    </tr>
-                `;
+                if (t.commission && t.commission > 0) {
+                    commissionCount++;
+                    const date = t.createdAt ? t.createdAt.toDate().toLocaleString() : 'Unknown';
+                    const rate = t.budget && t.commission ? ((t.commission / t.budget) * 100).toFixed(1) : 'N/A';
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${date}</td>
+                            <td>#${t.errandId?.slice(-6) || 'N/A'}</td>
+                            <td>KSH ${(t.budget || 0).toFixed(2)}</td>
+                            <td>KSH ${(t.commission || 0).toFixed(2)}</td>
+                            <td>${rate}%</td>
+                        </tr>
+                    `;
+                }
             });
+            
+            if (commissionCount === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No commission history</td></tr>';
+            }
         } catch (error) {
             console.error('Load commission history error:', error);
+            // Show fallback message
+            document.getElementById('commissionHistoryBody').innerHTML = '<tr><td colspan="5" style="text-align: center;">Error loading history. Please check console.</td></tr>';
         }
     }
 
