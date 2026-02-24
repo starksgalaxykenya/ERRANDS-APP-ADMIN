@@ -510,7 +510,7 @@
             color: #065f46;
         }
 
-        .status-pending, .status-waiting {
+        .status-pending, .status-waiting, .status-pending_client_approval {
             background: #fff3cd;
             color: #856404;
         }
@@ -523,6 +523,16 @@
         .status-inactive {
             background: #e5e7eb;
             color: #374151;
+        }
+
+        .status-in_progress {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-disputed {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .action-buttons {
@@ -1104,12 +1114,13 @@
                                 <th>Type</th>
                                 <th>Client</th>
                                 <th>Runner</th>
-                                <th>Budget</th>
+                                <th>Budget/Accepted</th>
+                                <th>Commission</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="recentErrandsBody">
-                            <tr><td colspan="6" style="text-align: center;">No recent errands</td></tr>
+                            <tr><td colspan="7" style="text-align: center;">No recent errands</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1194,9 +1205,11 @@
                             <div class="filter-buttons">
                                 <button class="filter-btn active" data-errand-filter="all">All</button>
                                 <button class="filter-btn" data-errand-filter="pending">Pending</button>
-                                <button class="filter-btn" data-errand-filter="assigned">Assigned</button>
+                                <button class="filter-btn" data-errand-filter="active">Active</button>
                                 <button class="filter-btn" data-errand-filter="in_progress">In Progress</button>
+                                <button class="filter-btn" data-errand-filter="pending_client_approval">Awaiting Approval</button>
                                 <button class="filter-btn" data-errand-filter="completed">Completed</button>
+                                <button class="filter-btn" data-errand-filter="disputed">Disputed</button>
                                 <button class="filter-btn" data-errand-filter="cancelled">Cancelled</button>
                             </div>
                         </div>
@@ -1209,14 +1222,16 @@
                                 <th>Type</th>
                                 <th>Client</th>
                                 <th>Runner</th>
-                                <th>Budget</th>
+                                <th>Original Budget</th>
+                                <th>Accepted Bid</th>
                                 <th>Commission</th>
+                                <th>Runner Gets</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="errandsTableBody">
-                            <tr><td colspan="8" style="text-align: center;">Loading errands...</td></tr>
+                            <tr><td colspan="10" style="text-align: center;">Loading errands...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1272,9 +1287,10 @@
                         <h2>Transaction History</h2>
                         <div class="filter-buttons">
                             <button class="filter-btn active" data-transaction-filter="all">All</button>
-                            <button class="filter-btn" data-transaction-filter="deposit">Deposits</button>
+                            <button class="filter-btn" data-transaction-filter="wallet_topup">Deposits</button>
                             <button class="filter-btn" data-transaction-filter="withdrawal">Withdrawals</button>
-                            <button class="filter-btn" data-transaction-filter="payment">Payments</button>
+                            <button class="filter-btn" data-transaction-filter="payment_release">Payments</button>
+                            <button class="filter-btn" data-transaction-filter="escrow_deposit">Escrow</button>
                         </div>
                     </div>
                     
@@ -1357,13 +1373,14 @@
                             <tr>
                                 <th>Date</th>
                                 <th>Errand ID</th>
-                                <th>Amount</th>
+                                <th>Original Budget</th>
+                                <th>Accepted Bid</th>
                                 <th>Commission</th>
                                 <th>Rate</th>
                             </tr>
                         </thead>
                         <tbody id="commissionHistoryBody">
-                            <tr><td colspan="5" style="text-align: center;">Loading history...</td></tr>
+                            <tr><td colspan="6" style="text-align: center;">Loading history...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1977,35 +1994,42 @@
             const totalErrands = errandsSnap.size;
             document.getElementById('totalErrands').textContent = totalErrands;
             
-            // Calculate commission
+            // Calculate commission from completed errands using accepted bid amounts
             let totalCommission = 0;
             errandsSnap.forEach(doc => {
-                totalCommission += doc.data().serviceFee || 0;
+                const errand = doc.data();
+                // Use finalServiceFee if available, otherwise calculate from accepted bid
+                if (errand.status === 'completed') {
+                    totalCommission += errand.finalServiceFee || (errand.acceptedBid ? errand.acceptedBid * 0.20 : errand.serviceFee || 0);
+                }
             });
             document.getElementById('totalCommission').textContent = `KSH ${totalCommission.toFixed(2)}`;
             document.getElementById('totalRevenue').textContent = `KSH ${totalCommission.toFixed(2)}`;
             
-            // Calculate pending payouts
-            const withdrawalsSnap = await db.collection('withdrawals').where('status', '==', 'pending').get();
-            let pendingPayouts = 0;
-            withdrawalsSnap.forEach(doc => pendingPayouts += doc.data().amount || 0);
+            // Calculate pending payouts (runner amounts from completed errands not yet withdrawn)
+            const pendingPayouts = 0; // This would come from runner wallet balances
             document.getElementById('pendingPayouts').textContent = `KSH ${pendingPayouts.toFixed(2)}`;
             
             // Calculate completed payouts
-            const completedWithdrawals = await db.collection('withdrawals').where('status', '==', 'completed').get();
+            const withdrawalsSnap = await db.collection('withdrawals').where('status', '==', 'completed').get();
             let completedPayouts = 0;
-            completedWithdrawals.forEach(doc => completedPayouts += doc.data().amount || 0);
+            withdrawalsSnap.forEach(doc => completedPayouts += doc.data().amount || 0);
             document.getElementById('completedPayouts').textContent = `KSH ${completedPayouts.toFixed(2)}`;
             
-            // Platform balance (total revenue - pending payouts)
-            const platformBalance = totalCommission - pendingPayouts;
+            // Platform balance (total revenue - completed payouts)
+            const platformBalance = totalCommission - completedPayouts;
             document.getElementById('platformBalance').textContent = `KSH ${platformBalance.toFixed(2)}`;
             
             // Analytics stats
-            const avgValue = totalErrands > 0 ? (totalCommission * 5) / totalErrands : 0; // Assuming 20% commission
+            const completedErrands = await db.collection('errands').where('status', '==', 'completed').get();
+            let totalValue = 0;
+            completedErrands.forEach(doc => {
+                const errand = doc.data();
+                totalValue += errand.finalAmount || errand.acceptedBid || errand.budget || 0;
+            });
+            const avgValue = completedErrands.size > 0 ? totalValue / completedErrands.size : 0;
             document.getElementById('avgErrandValue').textContent = `KSH ${avgValue.toFixed(2)}`;
             
-            const completedErrands = await db.collection('errands').where('status', '==', 'completed').get();
             const completionRate = totalErrands > 0 ? (completedErrands.size / totalErrands * 100).toFixed(1) : 0;
             document.getElementById('completionRate').textContent = completionRate + '%';
             
@@ -2085,7 +2109,7 @@
                     <tr>
                         <td>#${doc.id.slice(-6)}</td>
                         <td>${d.clientName || 'Client'} vs ${d.runnerName || 'Runner'}</td>
-                        <td>KSH ${(d.amount || 0).toFixed(2)}</td>
+                        <td>KSH ${(d.acceptedBid || d.amount || 0).toFixed(2)}</td>
                         <td><span class="status-badge status-${d.status}">${d.status.toUpperCase()}</span></td>
                         <td>
                             <button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button>
@@ -2109,13 +2133,15 @@
             tbody.innerHTML = '';
             
             if (snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No recent errands</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No recent errands</td></tr>';
                 return;
             }
             
             snapshot.forEach(doc => {
                 const e = doc.data();
                 const date = e.createdAt ? e.createdAt.toDate().toLocaleDateString() : 'Unknown';
+                const displayAmount = e.acceptedBid || e.budget || 0;
+                const commission = e.finalServiceFee || (e.acceptedBid ? e.acceptedBid * 0.20 : e.serviceFee || 0);
                 
                 tbody.innerHTML += `
                     <tr>
@@ -2123,7 +2149,8 @@
                         <td>${e.errandType || 'Unknown'}</td>
                         <td>${e.clientName || 'Unknown'}</td>
                         <td>${e.assignedRunnerName || 'Not assigned'}</td>
-                        <td>KSH ${(e.budget || 0).toFixed(2)}</td>
+                        <td>KSH ${displayAmount.toFixed(2)}</td>
+                        <td>KSH ${commission.toFixed(2)}</td>
                         <td><span class="status-badge status-${e.status || 'pending'}">${(e.status || 'pending').toUpperCase()}</span></td>
                     </tr>
                 `;
@@ -2192,13 +2219,16 @@
             tbody.innerHTML = '';
             
             if (snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No errands found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No errands found</td></tr>';
                 return;
             }
             
             snapshot.forEach(doc => {
                 const e = doc.data();
                 const date = e.createdAt ? e.createdAt.toDate().toLocaleDateString() : 'Unknown';
+                const acceptedBid = e.acceptedBid || 0;
+                const commission = e.finalServiceFee || (acceptedBid * 0.20) || e.serviceFee || 0;
+                const runnerGets = acceptedBid - commission;
                 
                 tbody.innerHTML += `
                     <tr data-errand-id="${doc.id}" data-errand-status="${e.status || 'pending'}">
@@ -2207,7 +2237,9 @@
                         <td>${e.clientName || 'Unknown'}</td>
                         <td>${e.assignedRunnerName || 'Not assigned'}</td>
                         <td>KSH ${(e.budget || 0).toFixed(2)}</td>
-                        <td>KSH ${(e.serviceFee || 0).toFixed(2)}</td>
+                        <td>KSH ${acceptedBid.toFixed(2)}</td>
+                        <td>KSH ${commission.toFixed(2)}</td>
+                        <td>KSH ${runnerGets.toFixed(2)}</td>
                         <td><span class="status-badge status-${e.status || 'pending'}">${(e.status || 'pending').toUpperCase()}</span></td>
                         <td>
                             <button class="action-btn view" onclick="viewErrand('${doc.id}')">View</button>
@@ -2260,7 +2292,6 @@
 
     async function loadAllWithdrawals() {
         try {
-            // Fixed query - order by createdAt first, then filter
             const snapshot = await db.collection('withdrawals')
                 .orderBy('createdAt', 'desc')
                 .get();
@@ -2273,7 +2304,6 @@
                 return;
             }
             
-            // Filter in memory instead of in query
             let pendingCount = 0;
             snapshot.forEach(doc => {
                 const w = doc.data();
@@ -2301,7 +2331,6 @@
             }
         } catch (error) {
             console.error('Load withdrawals error:', error);
-            // Show fallback message
             document.getElementById('withdrawalsBody').innerHTML = '<tr><td colspan="5" style="text-align: center;">Error loading withdrawals. Please check console.</td></tr>';
         }
     }
@@ -2320,6 +2349,7 @@
             snapshot.forEach(doc => {
                 const d = doc.data();
                 const date = d.createdAt ? d.createdAt.toDate().toLocaleString() : 'Unknown';
+                const disputeAmount = d.acceptedBid || d.amount || 0;
                 
                 disputesList.innerHTML += `
                     <div class="dispute-card" data-dispute-id="${doc.id}" data-dispute-status="${d.status || 'open'}">
@@ -2329,9 +2359,10 @@
                         </div>
                         <div><strong>Client:</strong> ${d.clientName || 'Unknown'}</div>
                         <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'}</div>
-                        <div><strong>Amount:</strong> KSH ${(d.amount || 0).toFixed(2)}</div>
+                        <div><strong>Amount in Dispute:</strong> KSH ${disputeAmount.toFixed(2)}</div>
+                        <div><strong>Original Budget:</strong> KSH ${(d.originalBudget || 0).toFixed(2)}</div>
                         <div><strong>Reason:</strong> ${d.reason || 'Not specified'}</div>
-                        <div class="dispute-message">${d.clientMessage || 'No message'}</div>
+                        <div class="dispute-message">${d.description || d.clientMessage || 'No message'}</div>
                         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
                             <span style="font-size: 12px;">${date}</span>
                             <div>
@@ -2427,7 +2458,6 @@
 
     async function loadCommissionHistory() {
         try {
-            // Fixed query - order by createdAt first, then filter in memory
             const snapshot = await db.collection('transactions')
                 .orderBy('createdAt', 'desc')
                 .limit(50)
@@ -2437,7 +2467,7 @@
             tbody.innerHTML = '';
             
             if (snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No commission history</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No commission history</td></tr>';
                 return;
             }
             
@@ -2447,13 +2477,15 @@
                 if (t.commission && t.commission > 0) {
                     commissionCount++;
                     const date = t.createdAt ? t.createdAt.toDate().toLocaleString() : 'Unknown';
-                    const rate = t.budget && t.commission ? ((t.commission / t.budget) * 100).toFixed(1) : 'N/A';
+                    const rate = t.acceptedBid && t.commission ? ((t.commission / t.acceptedBid) * 100).toFixed(1) : 
+                                (t.budget && t.commission ? ((t.commission / t.budget) * 100).toFixed(1) : 'N/A');
                     
                     tbody.innerHTML += `
                         <tr>
                             <td>${date}</td>
                             <td>#${t.errandId?.slice(-6) || 'N/A'}</td>
                             <td>KSH ${(t.budget || 0).toFixed(2)}</td>
+                            <td>KSH ${(t.acceptedBid || 0).toFixed(2)}</td>
                             <td>KSH ${(t.commission || 0).toFixed(2)}</td>
                             <td>${rate}%</td>
                         </tr>
@@ -2462,12 +2494,11 @@
             });
             
             if (commissionCount === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No commission history</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No commission history</td></tr>';
             }
         } catch (error) {
             console.error('Load commission history error:', error);
-            // Show fallback message
-            document.getElementById('commissionHistoryBody').innerHTML = '<tr><td colspan="5" style="text-align: center;">Error loading history. Please check console.</td></tr>';
+            document.getElementById('commissionHistoryBody').innerHTML = '<tr><td colspan="6" style="text-align: center;">Error loading history. Please check console.</td></tr>';
         }
     }
 
@@ -3034,6 +3065,9 @@
             }
             
             const e = doc.data();
+            const acceptedBid = e.acceptedBid || 0;
+            const commission = e.finalServiceFee || (acceptedBid * 0.20) || e.serviceFee || 0;
+            const runnerGets = acceptedBid - commission;
             
             document.getElementById('errandModalBody').innerHTML = `
                 <h3>Errand #${errandId.slice(-6)}</h3>
@@ -3041,15 +3075,22 @@
                     <div><strong>Type:</strong> ${e.errandType || 'Unknown'}</div>
                     <div><strong>Client:</strong> ${e.clientName || 'Unknown'} (${e.clientEmail || 'No email'})</div>
                     <div><strong>Runner:</strong> ${e.assignedRunnerName || 'Not assigned'}</div>
-                    <div><strong>Budget:</strong> KSH ${(e.budget || 0).toFixed(2)}</div>
-                    <div><strong>Service Fee:</strong> KSH ${(e.serviceFee || 0).toFixed(2)}</div>
+                    <div><strong>Original Budget:</strong> KSH ${(e.budget || 0).toFixed(2)}</div>
+                    <div><strong>Accepted Bid:</strong> KSH ${acceptedBid.toFixed(2)}</div>
+                    <div><strong>Commission (20%):</strong> KSH ${commission.toFixed(2)}</div>
+                    <div><strong>Runner Receives:</strong> KSH ${runnerGets.toFixed(2)}</div>
                     <div><strong>Status:</strong> <span class="status-badge status-${e.status || 'pending'}">${(e.status || 'pending').toUpperCase()}</span></div>
                     <div><strong>Created:</strong> ${e.createdAt ? e.createdAt.toDate().toLocaleString() : 'Unknown'}</div>
                     ${e.completedAt ? `<div><strong>Completed:</strong> ${e.completedAt.toDate().toLocaleString()}</div>` : ''}
+                    ${e.disputedAt ? `<div><strong>Disputed:</strong> ${e.disputedAt.toDate().toLocaleString()}</div>` : ''}
+                    ${e.disputeReason ? `<div><strong>Dispute Reason:</strong> ${e.disputeReason}</div>` : ''}
+                    ${e.disputeDescription ? `<div><strong>Dispute Details:</strong> ${e.disputeDescription}</div>` : ''}
                     <hr>
-                    <div><strong>Pickup:</strong> ${e.pickupAddress || 'Not specified'}</div>
-                    <div><strong>Delivery:</strong> ${e.deliveryAddress || 'Not specified'}</div>
+                    <div><strong>From:</strong> ${e.travelFrom || e.pickupAddress || 'Not specified'}</div>
+                    <div><strong>To:</strong> ${e.travelTo || e.deliveryAddress || 'Not specified'}</div>
+                    <div><strong>Location:</strong> ${e.town || ''}, ${e.area || ''}</div>
                     <div><strong>Description:</strong> ${e.description || 'No description'}</div>
+                    ${e.completionNotes ? `<div><strong>Completion Notes:</strong> ${e.completionNotes}</div>` : ''}
                 </div>
             `;
             
@@ -3063,7 +3104,6 @@
     }
 
     async function assignRunner(errandId) {
-        // In a real app, you'd show a list of available runners
         showToast('Assign runner feature - Coming soon', 'info');
     }
 
@@ -3107,6 +3147,7 @@
             }
             
             const d = doc.data();
+            const disputeAmount = d.acceptedBid || d.amount || 0;
             
             document.getElementById('disputeModalBody').innerHTML = `
                 <div class="dispute-header">
@@ -3117,11 +3158,13 @@
                     <div><strong>Client:</strong> ${d.clientName || 'Unknown'} (${d.clientEmail || 'No email'})</div>
                     <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'} (${d.runnerEmail || 'No email'})</div>
                     <div><strong>Errand ID:</strong> #${d.errandId?.slice(-6) || 'Unknown'}</div>
-                    <div><strong>Amount in Escrow:</strong> KSH ${(d.amount || 0).toFixed(2)}</div>
+                    <div><strong>Original Budget:</strong> KSH ${(d.originalBudget || 0).toFixed(2)}</div>
+                    <div><strong>Accepted Bid:</strong> KSH ${disputeAmount.toFixed(2)}</div>
+                    <div><strong>Amount in Escrow:</strong> KSH ${disputeAmount.toFixed(2)}</div>
                     <div><strong>Reason:</strong> ${d.reason || 'Not specified'}</div>
                 </div>
                 <h4>Client's Claim:</h4>
-                <div class="dispute-message">${d.clientMessage || 'No message provided'}</div>
+                <div class="dispute-message">${d.description || d.clientMessage || 'No message provided'}</div>
                 <h4>Runner's Response:</h4>
                 <div class="dispute-message">${d.runnerMessage || 'No response yet'}</div>
                 ${d.evidence ? `
@@ -3158,6 +3201,9 @@
             }
             
             const dispute = disputeDoc.data();
+            const disputeAmount = dispute.acceptedBid || dispute.amount || 0;
+            const commission = disputeAmount * 0.20;
+            const runnerGets = disputeAmount - commission;
             
             await db.collection('disputes').doc(selectedDisputeId).update({
                 status: 'resolved',
@@ -3166,13 +3212,52 @@
                 resolvedBy: currentAdmin?.uid || 'admin'
             });
             
-            // Update errand status
+            // Update errand status and release payment based on ruling
             if (dispute.errandId) {
-                await db.collection('errands').doc(dispute.errandId).update({
-                    status: 'completed',
-                    disputeRuling: ruling,
-                    completedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                const errandRef = db.collection('errands').doc(dispute.errandId);
+                
+                if (ruling === 'client') {
+                    // Refund client, no payment to runner
+                    await errandRef.update({
+                        status: 'cancelled',
+                        disputeRuling: 'client',
+                        completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        refundedToClient: true
+                    });
+                    
+                    // Refund client
+                    await db.collection('users').doc(dispute.clientId).update({
+                        walletBalance: firebase.firestore.FieldValue.increment(disputeAmount)
+                    });
+                    
+                } else if (ruling === 'runner') {
+                    // Pay runner
+                    await errandRef.update({
+                        status: 'completed',
+                        disputeRuling: 'runner',
+                        completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        finalAmount: disputeAmount,
+                        finalServiceFee: commission,
+                        finalRunnerAmount: runnerGets
+                    });
+                    
+                    // Pay runner
+                    await db.collection('runners').doc(dispute.runnerId).update({
+                        walletBalance: firebase.firestore.FieldValue.increment(runnerGets),
+                        totalJobs: firebase.firestore.FieldValue.increment(1),
+                        totalEarnings: firebase.firestore.FieldValue.increment(runnerGets)
+                    });
+                    
+                    // Record commission for platform
+                    await db.collection('transactions').add({
+                        errandId: dispute.errandId,
+                        type: 'commission',
+                        amount: commission,
+                        acceptedBid: disputeAmount,
+                        status: 'completed',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
             }
             
             showToast(`Dispute resolved in favor of ${ruling}`, 'success');
@@ -3235,6 +3320,7 @@
                     <div><strong>Commission:</strong> KSH ${(t.commission || 0).toFixed(2)}</div>
                     <div><strong>Status:</strong> <span class="status-badge status-${t.status || 'pending'}">${(t.status || 'pending').toUpperCase()}</span></div>
                     ${t.errandId ? `<div><strong>Errand ID:</strong> #${t.errandId.slice(-6)}</div>` : ''}
+                    ${t.acceptedBid ? `<div><strong>Accepted Bid:</strong> KSH ${(t.acceptedBid || 0).toFixed(2)}</div>` : ''}
                     ${t.paymentMethod ? `<div><strong>Payment Method:</strong> ${t.paymentMethod}</div>` : ''}
                     ${t.reference ? `<div><strong>Reference:</strong> ${t.reference}</div>` : ''}
                 </div>
@@ -3503,8 +3589,6 @@
         showLoading();
         
         try {
-            // In a real app, you'd send an invitation email
-            // For demo, we'll just create the admin document
             const adminRef = db.collection('admins').doc();
             await adminRef.set({
                 email: email,
