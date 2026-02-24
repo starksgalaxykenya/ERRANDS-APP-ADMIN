@@ -1,0 +1,3144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ERRANDS - Admin Dashboard</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1f2937;
+            --light: #f9fafb;
+            --gray: #9ca3af;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: var(--dark);
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 25px 0;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .admin-badge {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .nav-links {
+            list-style: none;
+            flex: 1;
+            padding: 0 15px;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link i {
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .badge {
+            background-color: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-left: auto;
+        }
+
+        .admin-profile {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .admin-info h4 {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .admin-info p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 25px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-time {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-info h3 {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        /* Charts Row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-card h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        canvas {
+            max-height: 300px;
+            width: 100% !important;
+        }
+
+        /* Tables */
+        .table-container {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .table-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--light);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 15px;
+        }
+
+        .search-box i {
+            color: var(--gray);
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            font-size: 14px;
+            width: 250px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background-color: var(--light);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: var(--light);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-active, .status-verified, .status-completed, .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending, .status-waiting {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-banned, .status-rejected, .status-cancelled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-inactive {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .action-btn.view {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .action-btn.edit {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .action-btn.approve {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .action-btn.reject, .action-btn.ban {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .action-btn.suspend {
+            background-color: var(--gray);
+            color: white;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .tab:hover, .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Commission Settings */
+        .commission-settings {
+            display: grid;
+            gap: 15px;
+        }
+
+        .commission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background-color: var(--light);
+            border-radius: var(--radius);
+        }
+
+        .commission-item label {
+            font-weight: 500;
+        }
+
+        .commission-input {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-align: right;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 80px;
+                padding: 20px 0;
+            }
+            
+            .sidebar-header, .admin-profile, .nav-link span, .logo span, .admin-badge {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .nav-link i {
+                margin: 0;
+                font-size: 20px;
+            }
+            
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            max-width: 350px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Loading */
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Dispute styles */
+        .dispute-card {
+            background: var(--light);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .dispute-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .dispute-id {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .dispute-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .dispute-message {
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            margin: 15px 0;
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .login-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .login-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: var(--gray);
+        }
+
+        .demo-credentials {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--radius);
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .demo-credentials p {
+            margin: 5px 0;
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-left">
+            <div style="text-align: center; max-width: 500px;">
+                <h1 style="font-size: 48px; margin-bottom: 20px;">⚙️ ERRANDS ADMIN</h1>
+                <p style="font-size: 20px; line-height: 1.6;">Complete platform management system. Monitor, verify, and control all aspects of your errand service.</p>
+                <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <i class="fas fa-users" style="font-size: 40px; margin-bottom: 15px;"></i>
+                        <h3>User Management</h3>
+                        <p>Verify, approve, or ban users</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chart-line" style="font-size: 40px; margin-bottom: 15px;"></i>
+                        <h3>Analytics</h3>
+                        <p>Track platform metrics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="login-right">
+            <div class="login-card">
+                <div class="login-header">
+                    <h1>Admin Login</h1>
+                    <p>Secure access to management console</p>
+                </div>
+                
+                <div class="demo-credentials">
+                    <p><strong>Demo Credentials:</strong></p>
+                    <p>Email: admin@errands.com</p>
+                    <p>Password: Admin@123</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="adminEmail" class="form-control" placeholder="Enter admin email" value="admin@errands.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="Enter password" value="Admin@123">
+                </div>
+                
+                <div id="loginError" class="error-message" style="display: none; color: var(--danger); margin-bottom: 15px;"></div>
+                
+                <button id="adminLoginBtn" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-lock"></i> Access Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Admin Dashboard -->
+    <div id="adminDashboard" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo">
+                    <i class="fas fa-running"></i>
+                    <span>ERRANDS ADMIN</span>
+                </a>
+                <div class="admin-badge">SUPER ADMIN</div>
+            </div>
+            
+            <ul class="nav-links">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="users">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                        <span class="badge" id="pendingUsersBadge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="verifications">
+                        <i class="fas fa-id-card"></i>
+                        <span>Verifications</span>
+                        <span class="badge" id="pendingVerificationsBadge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="errands">
+                        <i class="fas fa-tasks"></i>
+                        <span>Errands</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="disputes">
+                        <i class="fas fa-gavel"></i>
+                        <span>Disputes</span>
+                        <span class="badge" id="disputesBadge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="payments">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Payments</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="commission">
+                        <i class="fas fa-percent"></i>
+                        <span>Commission Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="support">
+                        <i class="fas fa-headset"></i>
+                        <span>Support Tickets</span>
+                        <span class="badge" id="supportBadge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="analytics">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" id="adminLogoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="admin-profile">
+                <img id="adminAvatar" src="https://ui-avatars.com/api/?name=Admin&background=667eea&color=fff" alt="Admin" class="admin-avatar">
+                <div class="admin-info">
+                    <h4 id="adminName">Admin User</h4>
+                    <p id="adminRole">Super Administrator</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Dynamic Header -->
+            <div class="header">
+                <h1 class="page-title" id="currentPageTitle">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </h1>
+                <div class="date-time" id="currentDateTime"></div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page active">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Total Users</h3>
+                            <div class="stat-number" id="totalUsers">0</div>
+                            <span style="font-size: 12px; color: var(--gray);">+12% this month</span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Active Runners</h3>
+                            <div class="stat-number" id="activeRunners">0</div>
+                            <span style="font-size: 12px; color: var(--gray);">Online now</span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-running"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Total Errands</h3>
+                            <div class="stat-number" id="totalErrands">0</div>
+                            <span style="font-size: 12px; color: var(--gray);">This month</span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Commission Earned</h3>
+                            <div class="stat-number" id="totalCommission">KSH 0</div>
+                            <span style="font-size: 12px; color: var(--gray);">20% platform fee</span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h2>Platform Activity (Last 7 Days)</h2>
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h2>User Distribution</h2>
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Tables -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Pending Verifications</h2>
+                        <button class="btn btn-outline" onclick="showPage('verifications')">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div id="pendingVerificationsTable">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Runner</th>
+                                    <th>Submitted</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingVerificationsBody">
+                                <tr><td colspan="4" style="text-align: center;">No pending verifications</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Recent Disputes</h2>
+                        <button class="btn btn-outline" onclick="showPage('disputes')">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div id="recentDisputesTable">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Dispute ID</th>
+                                    <th>Client/Runner</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentDisputesBody">
+                                <tr><td colspan="5" style="text-align: center;">No active disputes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Page -->
+            <div id="usersPage" class="page">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>User Management</h2>
+                        <div style="display: flex; gap: 15px;">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="userSearch" placeholder="Search users...">
+                            </div>
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-user-filter="all">All</button>
+                                <button class="filter-btn" data-user-filter="clients">Clients</button>
+                                <button class="filter-btn" data-user-filter="runners">Runners</button>
+                                <button class="filter-btn" data-user-filter="pending">Pending</button>
+                                <button class="filter-btn" data-user-filter="banned">Banned</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="7" style="text-align: center;">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Verifications Page -->
+            <div id="verificationsPage" class="page">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Runner Verifications</h2>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-verification-filter="pending">Pending</button>
+                            <button class="filter-btn" data-verification-filter="approved">Approved</button>
+                            <button class="filter-btn" data-verification-filter="rejected">Rejected</button>
+                            <button class="filter-btn" data-verification-filter="all">All</button>
+                        </div>
+                    </div>
+                    
+                    <div id="verificationsList">
+                        <!-- Verifications will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Errands Page -->
+            <div id="errandsPage" class="page">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>All Errands</h2>
+                        <div style="display: flex; gap: 15px;">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="errandSearch" placeholder="Search errands...">
+                            </div>
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-errand-filter="all">All</button>
+                                <button class="filter-btn" data-errand-filter="pending">Pending</button>
+                                <button class="filter-btn" data-errand-filter="active">Active</button>
+                                <button class="filter-btn" data-errand-filter="completed">Completed</button>
+                                <button class="filter-btn" data-errand-filter="disputed">Disputed</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <table id="errandsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Client</th>
+                                <th>Runner</th>
+                                <th>Budget</th>
+                                <th>Commission</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="errandsTableBody">
+                            <tr><td colspan="8" style="text-align: center;">Loading errands...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Disputes Page -->
+            <div id="disputesPage" class="page">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Dispute Resolution Center</h2>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-dispute-filter="open">Open</button>
+                            <button class="filter-btn" data-dispute-filter="resolved">Resolved</button>
+                            <button class="filter-btn" data-dispute-filter="escalated">Escalated</button>
+                            <button class="filter-btn" data-dispute-filter="all">All</button>
+                        </div>
+                    </div>
+                    
+                    <div id="disputesList">
+                        <!-- Disputes will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments Page -->
+            <div id="paymentsPage" class="page">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Total Revenue</h3>
+                            <div class="stat-number" id="totalRevenue">KSH 0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Pending Payouts</h3>
+                            <div class="stat-number" id="pendingPayouts">KSH 0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Completed Payouts</h3>
+                            <div class="stat-number" id="completedPayouts">KSH 0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Transaction History</h2>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-transaction-filter="all">All</button>
+                            <button class="filter-btn" data-transaction-filter="escrow">Escrow</button>
+                            <button class="filter-btn" data-transaction-filter="withdrawal">Withdrawals</button>
+                            <button class="filter-btn" data-transaction-filter="commission">Commission</button>
+                        </div>
+                    </div>
+                    
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Commission</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                            <tr><td colspan="6" style="text-align: center;">Loading transactions...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Commission Settings Page -->
+            <div id="commissionPage" class="page">
+                <div class="table-container">
+                    <h2 style="margin-bottom: 20px;">Commission Settings</h2>
+                    
+                    <div class="commission-settings">
+                        <div class="commission-item">
+                            <label>Default Platform Fee (%)</label>
+                            <input type="number" id="defaultCommission" class="commission-input" value="20" min="0" max="50">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Delivery Errands Fee (%)</label>
+                            <input type="number" id="deliveryCommission" class="commission-input" value="20" min="0" max="50">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Shopping Errands Fee (%)</label>
+                            <input type="number" id="shoppingCommission" class="commission-input" value="15" min="0" max="50">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Repair/Handy Work Fee (%)</label>
+                            <input type="number" id="repairCommission" class="commission-input" value="15" min="0" max="50">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Minimum Commission (KSH)</label>
+                            <input type="number" id="minCommission" class="commission-input" value="50" min="0">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Runner Withdrawal Fee (KSH)</label>
+                            <input type="number" id="withdrawalFee" class="commission-input" value="30" min="0">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px; display: flex; gap: 15px;">
+                        <button class="btn btn-primary" onclick="saveCommissionSettings()">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                        <button class="btn btn-outline" onclick="resetCommissionSettings()">
+                            <i class="fas fa-undo"></i> Reset to Default
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Tickets Page -->
+            <div id="supportPage" class="page">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Support Tickets</h2>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-ticket-filter="open">Open</button>
+                            <button class="filter-btn" data-ticket-filter="in-progress">In Progress</button>
+                            <button class="filter-btn" data-ticket-filter="resolved">Resolved</button>
+                            <button class="filter-btn" data-ticket-filter="all">All</button>
+                        </div>
+                    </div>
+                    
+                    <div id="ticketsList">
+                        <!-- Support tickets will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analyticsPage" class="page">
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h2>Revenue Overview</h2>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h2>User Growth</h2>
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <h2>Errand Categories</h2>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h2>Peak Hours</h2>
+                        <canvas id="peakHoursChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settingsPage" class="page">
+                <div class="table-container">
+                    <h2 style="margin-bottom: 20px;">System Settings</h2>
+                    
+                    <div class="commission-settings">
+                        <div class="commission-item">
+                            <label>Minimum Errand Budget</label>
+                            <input type="number" id="minBudget" class="commission-input" value="500" min="100">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Maximum Errand Budget</label>
+                            <input type="number" id="maxBudget" class="commission-input" value="100000" min="1000">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>New User Bonus (KSH)</label>
+                            <input type="number" id="newUserBonus" class="commission-input" value="5000" min="0">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>New Runner Bonus (KSH)</label>
+                            <input type="number" id="newRunnerBonus" class="commission-input" value="2000" min="0">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Dispute Resolution Time (Hours)</label>
+                            <input type="number" id="disputeTime" class="commission-input" value="48" min="24">
+                        </div>
+                        
+                        <div class="commission-item">
+                            <label>Auto-cancel Time (Hours)</label>
+                            <input type="number" id="autoCancelTime" class="commission-input" value="24" min="12">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                        <button class="btn btn-primary" onclick="saveSystemSettings()">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>User Details</h2>
+                <button class="close-modal" onclick="closeModal('userModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="userModalBody">
+                <!-- User details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('userModal')">Close</button>
+                <button class="btn btn-success" onclick="approveUser()" id="approveUserBtn">Approve User</button>
+                <button class="btn btn-danger" onclick="banUser()" id="banUserBtn">Ban User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Details Modal -->
+    <div id="verificationModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2>Verification Documents</h2>
+                <button class="close-modal" onclick="closeModal('verificationModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="verificationModalBody">
+                <!-- Verification documents will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('verificationModal')">Close</button>
+                <button class="btn btn-success" onclick="approveVerification()">Approve</button>
+                <button class="btn btn-danger" onclick="rejectVerification()">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispute Resolution Modal -->
+    <div id="disputeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Dispute Resolution</h2>
+                <button class="close-modal" onclick="closeModal('disputeModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="disputeModalBody">
+                <!-- Dispute details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('disputeModal')">Close</button>
+                <button class="btn btn-success" onclick="resolveDispute('client')">Rule for Client</button>
+                <button class="btn btn-success" onclick="resolveDispute('runner')">Rule for Runner</button>
+                <button class="btn btn-warning" onclick="escalateDispute()">Escalate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Ticket Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Support Ticket</h2>
+                <button class="close-modal" onclick="closeModal('ticketModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="ticketModalBody">
+                <!-- Ticket details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('ticketModal')">Close</button>
+                <button class="btn btn-success" onclick="respondToTicket()">Send Response</button>
+                <button class="btn btn-primary" onclick="markTicketResolved()">Mark Resolved</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="adminToast" class="toast">
+        <i id="toastIcon" class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operation completed successfully!</span>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-cyGvUm_XZBvP62OpCLoELYK5b8jABig",
+            authDomain: "finance-report-246b1.firebaseapp.com",
+            projectId: "finance-report-246b1",
+            storageBucket: "finance-report-246b1.firebasestorage.app",
+            messagingSenderId: "506353861080",
+            appId: "1:506353861080:web:b5b2526f2828f380d9b2ad"
+        };
+
+        // Initialize Firebase
+        let auth, db, storage;
+        
+        try {
+            if (typeof firebase === 'undefined') {
+                throw new Error('Firebase SDK not loaded');
+            }
+            
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            storage = firebase.storage();
+            
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
+
+        // Global Variables
+        let currentAdmin = null;
+        let adminData = {};
+        let charts = {};
+        let selectedUserId = null;
+        let selectedVerificationId = null;
+        let selectedDisputeId = null;
+        let selectedTicketId = null;
+
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const toast = document.getElementById('adminToast');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            if (!auth) {
+                showLoginError('Firebase not initialized');
+                return;
+            }
+            
+            // Check if user is admin
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    checkAdminStatus(user);
+                } else {
+                    showLogin();
+                }
+            });
+        });
+
+        // Event Listeners
+        function initEventListeners() {
+            // Login
+            const adminLoginBtn = document.getElementById('adminLoginBtn');
+            if (adminLoginBtn) {
+                adminLoginBtn.addEventListener('click', adminLogin);
+            }
+            
+            // Enter key on password field
+            const passwordInput = document.getElementById('adminPassword');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        adminLogin();
+                    }
+                });
+            }
+            
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    
+                    if (this.id === 'adminLogoutBtn') {
+                        adminLogout();
+                    } else {
+                        showPage(page);
+                        
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Update page title
+                        const titleSpan = document.querySelector('#currentPageTitle span');
+                        const icon = this.querySelector('i').cloneNode(true);
+                        document.querySelector('#currentPageTitle').innerHTML = '';
+                        document.querySelector('#currentPageTitle').appendChild(icon);
+                        document.querySelector('#currentPageTitle').appendChild(document.createTextNode(' '));
+                        document.querySelector('#currentPageTitle').appendChild(document.createTextNode(this.querySelector('span').textContent));
+                    }
+                });
+            });
+            
+            // Search functionality
+            const userSearch = document.getElementById('userSearch');
+            if (userSearch) {
+                userSearch.addEventListener('input', debounce(filterUsers, 300));
+            }
+            
+            const errandSearch = document.getElementById('errandSearch');
+            if (errandSearch) {
+                errandSearch.addEventListener('input', debounce(filterErrands, 300));
+            }
+            
+            // Filter buttons
+            document.querySelectorAll('[data-user-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-user-filter]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterUsersByType(this.getAttribute('data-user-filter'));
+                });
+            });
+            
+            document.querySelectorAll('[data-verification-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-verification-filter]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterVerifications(this.getAttribute('data-verification-filter'));
+                });
+            });
+            
+            document.querySelectorAll('[data-errand-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-errand-filter]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterErrandsByStatus(this.getAttribute('data-errand-filter'));
+                });
+            });
+            
+            document.querySelectorAll('[data-dispute-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-dispute-filter]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterDisputes(this.getAttribute('data-dispute-filter'));
+                });
+            });
+            
+            document.querySelectorAll('[data-transaction-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-transaction-filter]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterTransactions(this.getAttribute('data-transaction-filter'));
+                });
+            });
+            
+            document.querySelectorAll('[data-ticket-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-ticket-filter]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterTickets(this.getAttribute('data-ticket-filter'));
+                });
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                }
+            });
+        }
+
+        // Admin Authentication
+        async function adminLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if (!email || !password) {
+                showLoginError('Please enter email and password');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                // Sign in with email/password
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Check if user is admin
+                const adminDoc = await db.collection('admins').doc(user.uid).get();
+                
+                if (adminDoc.exists) {
+                    currentAdmin = user;
+                    adminData = adminDoc.data();
+                    
+                    // Load dashboard data
+                    loadDashboardData();
+                    
+                    showApp();
+                    showToast('Welcome back, Admin!', 'success');
+                } else {
+                    // Not an admin, sign out
+                    await auth.signOut();
+                    showLoginError('Access denied. Admin privileges required.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // For demo purposes, create admin account if it doesn't exist
+                if (error.code === 'auth/user-not-found') {
+                    try {
+                        // Create admin account
+                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                        const user = userCredential.user;
+                        
+                        // Create admin document
+                        await db.collection('admins').doc(user.uid).set({
+                            email: email,
+                            name: 'Admin User',
+                            role: 'super_admin',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            permissions: ['all']
+                        });
+                        
+                        currentAdmin = user;
+                        adminData = {
+                            email: email,
+                            name: 'Admin User',
+                            role: 'super_admin'
+                        };
+                        
+                        loadDashboardData();
+                        showApp();
+                        showToast('Admin account created!', 'success');
+                    } catch (createError) {
+                        showLoginError('Error creating admin: ' + createError.message);
+                    }
+                } else {
+                    showLoginError('Login failed: ' + error.message);
+                }
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function checkAdminStatus(user) {
+            try {
+                const adminDoc = await db.collection('admins').doc(user.uid).get();
+                
+                if (adminDoc.exists) {
+                    currentAdmin = user;
+                    adminData = adminDoc.data();
+                    
+                    loadDashboardData();
+                    showApp();
+                } else {
+                    await auth.signOut();
+                    showLogin();
+                }
+            } catch (error) {
+                console.error('Check admin error:', error);
+                await auth.signOut();
+                showLogin();
+            }
+        }
+
+        async function adminLogout() {
+            try {
+                await auth.signOut();
+                showToast('Logged out successfully', 'success');
+                showLogin();
+            } catch (error) {
+                console.error('Logout error:', error);
+                showToast('Error logging out', 'error');
+            }
+        }
+
+        function showLoginError(message) {
+            const loginError = document.getElementById('loginError');
+            loginError.textContent = message;
+            loginError.style.display = 'block';
+        }
+
+        // Dashboard Data Loading
+        async function loadDashboardData() {
+            showLoading();
+            
+            try {
+                // Load stats
+                await loadStats();
+                
+                // Load pending verifications
+                await loadPendingVerifications();
+                
+                // Load recent disputes
+                await loadRecentDisputes();
+                
+                // Load all users for user management
+                await loadAllUsers();
+                
+                // Load all errands
+                await loadAllErrands();
+                
+                // Load transactions
+                await loadTransactions();
+                
+                // Load support tickets
+                await loadSupportTickets();
+                
+                // Initialize charts
+                initCharts();
+                
+                // Update badges
+                await updateBadges();
+                
+            } catch (error) {
+                console.error('Load dashboard error:', error);
+                showToast('Error loading dashboard: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function loadStats() {
+            try {
+                // Get total users
+                const usersSnapshot = await db.collection('users').get();
+                const runnersSnapshot = await db.collection('runners').get();
+                const totalUsers = usersSnapshot.size + runnersSnapshot.size;
+                document.getElementById('totalUsers').textContent = totalUsers;
+                
+                // Get active runners
+                const activeRunnersSnapshot = await db.collection('runners').where('isAvailable', '==', true).get();
+                document.getElementById('activeRunners').textContent = activeRunnersSnapshot.size;
+                
+                // Get total errands
+                const errandsSnapshot = await db.collection('errands').get();
+                document.getElementById('totalErrands').textContent = errandsSnapshot.size;
+                
+                // Calculate total commission
+                let totalCommission = 0;
+                errandsSnapshot.forEach(doc => {
+                    const errand = doc.data();
+                    if (errand.status === 'completed') {
+                        totalCommission += errand.serviceFee || 0;
+                    }
+                });
+                document.getElementById('totalCommission').textContent = `KSH ${totalCommission.toFixed(2)}`;
+                
+                // Revenue stats for payments page
+                document.getElementById('totalRevenue').textContent = `KSH ${totalCommission.toFixed(2)}`;
+                
+                // Get pending payouts
+                const withdrawalsSnapshot = await db.collection('withdrawals').where('status', '==', 'pending').get();
+                let pendingPayouts = 0;
+                withdrawalsSnapshot.forEach(doc => {
+                    pendingPayouts += doc.data().amount || 0;
+                });
+                document.getElementById('pendingPayouts').textContent = `KSH ${pendingPayouts.toFixed(2)}`;
+                
+                // Get completed payouts
+                const completedWithdrawals = await db.collection('withdrawals').where('status', '==', 'completed').get();
+                let completedPayouts = 0;
+                completedWithdrawals.forEach(doc => {
+                    completedPayouts += doc.data().amount || 0;
+                });
+                document.getElementById('completedPayouts').textContent = `KSH ${completedPayouts.toFixed(2)}`;
+                
+            } catch (error) {
+                console.error('Load stats error:', error);
+            }
+        }
+
+        async function loadPendingVerifications() {
+            try {
+                const snapshot = await db.collection('verifications')
+                    .where('status', '==', 'pending')
+                    .orderBy('submittedAt', 'desc')
+                    .limit(5)
+                    .get();
+                
+                const tbody = document.getElementById('pendingVerificationsBody');
+                tbody.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No pending verifications</td></tr>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const verification = doc.data();
+                    const date = verification.submittedAt ? verification.submittedAt.toDate().toLocaleDateString() : 'Unknown';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="user-cell">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(verification.runnerName || 'Runner')}&background=667eea&color=fff" class="user-avatar-small">
+                                ${verification.runnerName || 'Unknown'}
+                            </div>
+                        </td>
+                        <td>${date}</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn view" onclick="viewVerification('${doc.id}')">View</button>
+                                <button class="action-btn approve" onclick="approveVerification('${doc.id}')">Approve</button>
+                                <button class="action-btn reject" onclick="rejectVerification('${doc.id}')">Reject</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Load pending verifications error:', error);
+            }
+        }
+
+        async function loadRecentDisputes() {
+            try {
+                const snapshot = await db.collection('disputes')
+                    .where('status', 'in', ['open', 'escalated'])
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+                
+                const tbody = document.getElementById('recentDisputesBody');
+                tbody.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No active disputes</td></tr>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const dispute = doc.data();
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#${doc.id.slice(-6)}</td>
+                        <td>${dispute.clientName || 'Client'} vs ${dispute.runnerName || 'Runner'}</td>
+                        <td>KSH ${(dispute.amount || 0).toFixed(2)}</td>
+                        <td><span class="status-badge status-${dispute.status}">${dispute.status.toUpperCase()}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Load recent disputes error:', error);
+            }
+        }
+
+        async function loadAllUsers() {
+            try {
+                // Get clients
+                const clientsSnapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+                // Get runners
+                const runnersSnapshot = await db.collection('runners').orderBy('createdAt', 'desc').get();
+                
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                
+                let allUsers = [];
+                
+                clientsSnapshot.forEach(doc => {
+                    allUsers.push({
+                        id: doc.id,
+                        type: 'client',
+                        ...doc.data()
+                    });
+                });
+                
+                runnersSnapshot.forEach(doc => {
+                    allUsers.push({
+                        id: doc.id,
+                        type: 'runner',
+                        ...doc.data()
+                    });
+                });
+                
+                // Sort by date
+                allUsers.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                    const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                    return dateB - dateA;
+                });
+                
+                if (allUsers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No users found</td></tr>';
+                    return;
+                }
+                
+                allUsers.forEach(user => {
+                    const row = createUserRow(user);
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Load all users error:', error);
+            }
+        }
+
+        function createUserRow(user) {
+            const row = document.createElement('tr');
+            row.dataset.userId = user.id;
+            row.dataset.userType = user.type;
+            
+            const date = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'Unknown';
+            const status = user.banned ? 'banned' : (user.profileComplete ? 'active' : 'incomplete');
+            const statusClass = user.banned ? 'status-banned' : (user.profileComplete ? 'status-active' : 'status-pending');
+            const statusText = user.banned ? 'BANNED' : (user.profileComplete ? 'ACTIVE' : 'INCOMPLETE');
+            
+            row.innerHTML = `
+                <td>
+                    <div class="user-cell">
+                        <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff`}" class="user-avatar-small">
+                        ${user.name || 'Unknown'}
+                    </div>
+                </td>
+                <td>${user.type === 'runner' ? '🏃 Runner' : '👤 Client'}</td>
+                <td>${user.email || ''}</td>
+                <td>${user.phone || 'Not provided'}</td>
+                <td>${date}</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn view" onclick="viewUser('${user.id}', '${user.type}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        ${!user.banned ? `
+                            <button class="action-btn suspend" onclick="suspendUser('${user.id}', '${user.type}')">
+                                <i class="fas fa-pause"></i> Suspend
+                            </button>
+                            <button class="action-btn ban" onclick="banUser('${user.id}', '${user.type}')">
+                                <i class="fas fa-ban"></i> Ban
+                            </button>
+                        ` : `
+                            <button class="action-btn approve" onclick="unbanUser('${user.id}', '${user.type}')">
+                                <i class="fas fa-check"></i> Unban
+                            </button>
+                        `}
+                    </div>
+                </td>
+            `;
+            
+            return row;
+        }
+
+        async function loadAllErrands() {
+            try {
+                const snapshot = await db.collection('errands')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                const tbody = document.getElementById('errandsTableBody');
+                tbody.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No errands found</td></tr>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const errand = doc.data();
+                    const row = createErrandRow(errand, doc.id);
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Load all errands error:', error);
+            }
+        }
+
+        function createErrandRow(errand, id) {
+            const row = document.createElement('tr');
+            
+            const date = errand.createdAt ? errand.createdAt.toDate().toLocaleDateString() : 'Unknown';
+            const statusClass = `status-${errand.status}`;
+            
+            row.innerHTML = `
+                <td>#${id.slice(-6)}</td>
+                <td>${errand.errandType || 'Unknown'}</td>
+                <td>${errand.clientName || 'Unknown'}</td>
+                <td>${errand.assignedRunnerName || 'Not assigned'}</td>
+                <td>KSH ${(errand.budget || 0).toFixed(2)}</td>
+                <td>KSH ${(errand.serviceFee || 0).toFixed(2)}</td>
+                <td><span class="status-badge ${statusClass}">${errand.status.toUpperCase()}</span></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn view" onclick="viewErrand('${id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        ${errand.status === 'disputed' ? `
+                            <button class="action-btn edit" onclick="resolveDispute('${id}')">
+                                <i class="fas fa-gavel"></i> Resolve
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+            `;
+            
+            return row;
+        }
+
+        async function loadTransactions() {
+            try {
+                const snapshot = await db.collection('transactions')
+                    .orderBy('createdAt', 'desc')
+                    .limit(50)
+                    .get();
+                
+                const tbody = document.getElementById('transactionsBody');
+                tbody.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No transactions found</td></tr>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const transaction = doc.data();
+                    const row = createTransactionRow(transaction);
+                    tbody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Load transactions error:', error);
+            }
+        }
+
+        function createTransactionRow(transaction) {
+            const row = document.createElement('tr');
+            
+            const date = transaction.createdAt ? transaction.createdAt.toDate().toLocaleString() : 'Unknown';
+            const typeClass = transaction.type === 'escrow_deposit' ? 'status-pending' : 'status-active';
+            
+            row.innerHTML = `
+                <td>${date}</td>
+                <td><span class="status-badge ${typeClass}">${transaction.type.replace('_', ' ').toUpperCase()}</span></td>
+                <td>${transaction.userId?.slice(-6) || 'Unknown'}</td>
+                <td>KSH ${(transaction.amount || 0).toFixed(2)}</td>
+                <td>KSH ${(transaction.commission || 0).toFixed(2)}</td>
+                <td><span class="status-badge status-${transaction.status}">${transaction.status.toUpperCase()}</span></td>
+            `;
+            
+            return row;
+        }
+
+        async function loadSupportTickets() {
+            try {
+                const snapshot = await db.collection('support')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                
+                const ticketsList = document.getElementById('ticketsList');
+                ticketsList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    ticketsList.innerHTML = '<div style="text-align: center; padding: 40px;">No support tickets found</div>';
+                    return;
+                }
+                
+                snapshot.forEach(doc => {
+                    const ticket = doc.data();
+                    const ticketCard = createTicketCard(ticket, doc.id);
+                    ticketsList.appendChild(ticketCard);
+                });
+                
+            } catch (error) {
+                console.error('Load support tickets error:', error);
+            }
+        }
+
+        function createTicketCard(ticket, id) {
+            const card = document.createElement('div');
+            card.className = 'dispute-card';
+            card.dataset.ticketId = id;
+            
+            const date = ticket.createdAt ? ticket.createdAt.toDate().toLocaleString() : 'Unknown';
+            const statusClass = `status-${ticket.status}`;
+            
+            card.innerHTML = `
+                <div class="dispute-header">
+                    <span class="dispute-id">Ticket #${id.slice(-6)}</span>
+                    <span class="dispute-status ${statusClass}">${ticket.status.toUpperCase()}</span>
+                </div>
+                <div><strong>From:</strong> ${ticket.userName || 'Unknown'} (${ticket.userType || 'User'})</div>
+                <div><strong>Subject:</strong> ${ticket.subject || 'No subject'}</div>
+                <div class="dispute-message">${ticket.message || 'No message'}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <span style="font-size: 12px; color: var(--gray);">${date}</span>
+                    <div class="action-buttons">
+                        <button class="action-btn view" onclick="viewTicket('${id}')">Respond</button>
+                        <button class="action-btn approve" onclick="markTicketResolved('${id}')">Resolve</button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        async function updateBadges() {
+            try {
+                // Pending verifications
+                const verificationsSnapshot = await db.collection('verifications').where('status', '==', 'pending').get();
+                document.getElementById('pendingVerificationsBadge').textContent = verificationsSnapshot.size;
+                
+                // Active disputes
+                const disputesSnapshot = await db.collection('disputes').where('status', '==', 'open').get();
+                document.getElementById('disputesBadge').textContent = disputesSnapshot.size;
+                
+                // Open support tickets
+                const ticketsSnapshot = await db.collection('support').where('status', '==', 'open').get();
+                document.getElementById('supportBadge').textContent = ticketsSnapshot.size;
+                
+                // Pending users (incomplete profiles)
+                const pendingUsersSnapshot = await db.collection('users').where('profileComplete', '==', false).get();
+                const pendingRunnersSnapshot = await db.collection('runners').where('profileComplete', '==', false).get();
+                document.getElementById('pendingUsersBadge').textContent = pendingUsersSnapshot.size + pendingRunnersSnapshot.size;
+                
+            } catch (error) {
+                console.error('Update badges error:', error);
+            }
+        }
+
+        // Chart Functions
+        function initCharts() {
+            // Activity Chart
+            const activityCtx = document.getElementById('activityChart')?.getContext('2d');
+            if (activityCtx) {
+                charts.activity = new Chart(activityCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Errands',
+                            data: [12, 19, 15, 17, 24, 30, 28],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'New Users',
+                            data: [8, 12, 10, 14, 18, 22, 20],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // User Chart
+            const userCtx = document.getElementById('userChart')?.getContext('2d');
+            if (userCtx) {
+                charts.user = new Chart(userCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Clients', 'Runners'],
+                        datasets: [{
+                            data: [65, 35],
+                            backgroundColor: ['#667eea', '#10b981'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
+            if (revenueCtx) {
+                charts.revenue = new Chart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Revenue',
+                            data: [12000, 19000, 15000, 22000, 28000, 35000],
+                            backgroundColor: '#667eea'
+                        }]
+                    }
+                });
+            }
+            
+            // Growth Chart
+            const growthCtx = document.getElementById('growthChart')?.getContext('2d');
+            if (growthCtx) {
+                charts.growth = new Chart(growthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Users',
+                            data: [150, 220, 280, 350, 420, 500],
+                            borderColor: '#10b981'
+                        }]
+                    }
+                });
+            }
+            
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart')?.getContext('2d');
+            if (categoryCtx) {
+                charts.category = new Chart(categoryCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Delivery', 'Shopping', 'Repair', 'Mama Fua', 'Other'],
+                        datasets: [{
+                            data: [40, 25, 15, 12, 8],
+                            backgroundColor: ['#667eea', '#10b981', '#f59e0b', '#ef4444', '#9ca3af']
+                        }]
+                    }
+                });
+            }
+            
+            // Peak Hours Chart
+            const peakCtx = document.getElementById('peakHoursChart')?.getContext('2d');
+            if (peakCtx) {
+                charts.peak = new Chart(peakCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['6am', '9am', '12pm', '3pm', '6pm', '9pm', '12am'],
+                        datasets: [{
+                            label: 'Errands',
+                            data: [5, 25, 45, 60, 80, 50, 15],
+                            borderColor: '#f59e0b',
+                            fill: false
+                        }]
+                    }
+                });
+            }
+        }
+
+        // Filter Functions
+        function filterUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function filterUsersByType(type) {
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            
+            rows.forEach(row => {
+                if (type === 'all') {
+                    row.style.display = '';
+                } else {
+                    const userType = row.dataset.userType;
+                    row.style.display = userType === type ? '' : 'none';
+                }
+            });
+        }
+
+        function filterErrands() {
+            const searchTerm = document.getElementById('errandSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#errandsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function filterErrandsByStatus(status) {
+            const rows = document.querySelectorAll('#errandsTableBody tr');
+            
+            rows.forEach(row => {
+                if (status === 'all') {
+                    row.style.display = '';
+                } else {
+                    const statusCell = row.querySelector('td:nth-child(7) span');
+                    if (statusCell) {
+                        const rowStatus = statusCell.textContent.toLowerCase();
+                        row.style.display = rowStatus === status ? '' : 'none';
+                    }
+                }
+            });
+        }
+
+        function filterVerifications(status) {
+            // Implementation depends on how you display verifications
+            console.log('Filter verifications by:', status);
+        }
+
+        function filterDisputes(status) {
+            const cards = document.querySelectorAll('#disputesList .dispute-card');
+            
+            cards.forEach(card => {
+                if (status === 'all') {
+                    card.style.display = '';
+                } else {
+                    const statusSpan = card.querySelector('.dispute-status');
+                    if (statusSpan) {
+                        const cardStatus = statusSpan.textContent.toLowerCase();
+                        card.style.display = cardStatus.includes(status) ? '' : 'none';
+                    }
+                }
+            });
+        }
+
+        function filterTransactions(type) {
+            const rows = document.querySelectorAll('#transactionsBody tr');
+            
+            rows.forEach(row => {
+                if (type === 'all') {
+                    row.style.display = '';
+                } else {
+                    const typeCell = row.querySelector('td:nth-child(2) span');
+                    if (typeCell) {
+                        const rowType = typeCell.textContent.toLowerCase();
+                        row.style.display = rowType.includes(type) ? '' : 'none';
+                    }
+                }
+            });
+        }
+
+        function filterTickets(status) {
+            const cards = document.querySelectorAll('#ticketsList .dispute-card');
+            
+            cards.forEach(card => {
+                if (status === 'all') {
+                    card.style.display = '';
+                } else {
+                    const statusSpan = card.querySelector('.dispute-status');
+                    if (statusSpan) {
+                        const cardStatus = statusSpan.textContent.toLowerCase();
+                        card.style.display = cardStatus.includes(status) ? '' : 'none';
+                    }
+                }
+            });
+        }
+
+        // User Actions
+        async function viewUser(userId, type) {
+            selectedUserId = userId;
+            
+            try {
+                const collection = type === 'runner' ? 'runners' : 'users';
+                const userDoc = await db.collection(collection).doc(userId).get();
+                
+                if (!userDoc.exists) return;
+                
+                const user = userDoc.data();
+                const modalBody = document.getElementById('userModalBody');
+                
+                modalBody.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=100&background=667eea&color=fff`}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                        <h3 style="margin-top: 10px;">${user.name || 'Unknown'}</h3>
+                        <p>${type === 'runner' ? '🏃 Runner' : '👤 Client'}</p>
+                    </div>
+                    
+                    <div style="display: grid; gap: 10px;">
+                        <div><strong>Email:</strong> ${user.email || 'Not provided'}</div>
+                        <div><strong>Phone:</strong> ${user.phone || 'Not provided'}</div>
+                        <div><strong>Joined:</strong> ${user.createdAt ? user.createdAt.toDate().toLocaleString() : 'Unknown'}</div>
+                        ${type === 'runner' ? `
+                            <div><strong>Verification Status:</strong> <span class="status-badge status-${user.verificationStatus || 'pending'}">${(user.verificationStatus || 'pending').toUpperCase()}</span></div>
+                            <div><strong>Total Jobs:</strong> ${user.totalJobs || 0}</div>
+                            <div><strong>Total Earnings:</strong> KSH ${(user.totalEarnings || 0).toFixed(2)}</div>
+                            <div><strong>Rating:</strong> ⭐ ${user.rating || '0.0'}</div>
+                        ` : `
+                            <div><strong>Total Errands:</strong> ${user.totalErrands || 0}</div>
+                            <div><strong>Total Spent:</strong> KSH ${(user.totalSpent || 0).toFixed(2)}</div>
+                        `}
+                        <div><strong>Wallet Balance:</strong> KSH ${(user.walletBalance || 0).toFixed(2)}</div>
+                        <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
+                    </div>
+                `;
+                
+                // Show/hide action buttons based on status
+                document.getElementById('approveUserBtn').style.display = user.banned ? 'none' : 'inline-flex';
+                document.getElementById('banUserBtn').style.display = user.banned ? 'none' : 'inline-flex';
+                
+                showModal('userModal');
+                
+            } catch (error) {
+                console.error('View user error:', error);
+                showToast('Error loading user details', 'error');
+            }
+        }
+
+        async function banUser(userId, type) {
+            if (!confirm('Are you sure you want to ban this user? They will not be able to access the platform.')) return;
+            
+            showLoading();
+            
+            try {
+                const collection = type === 'runner' ? 'runners' : 'users';
+                await db.collection(collection).doc(userId).update({
+                    banned: true,
+                    bannedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('User banned successfully', 'success');
+                closeModal('userModal');
+                loadAllUsers(); // Refresh the list
+                
+            } catch (error) {
+                console.error('Ban user error:', error);
+                showToast('Error banning user: ' + error.message, 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function unbanUser(userId, type) {
+            if (!confirm('Unban this user?')) return;
+            
+            showLoading();
+            
+            try {
+                const collection = type === 'runner' ? 'runners' : 'users';
+                await db.collection(collection).doc(userId).update({
+                    banned: false
+                });
+                
+                showToast('User unbanned successfully', 'success');
+                loadAllUsers();
+                
+            } catch (error) {
+                console.error('Unban user error:', error);
+                showToast('Error unbanning user', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function suspendUser(userId, type) {
+            if (!confirm('Suspend this user temporarily?')) return;
+            
+            showLoading();
+            
+            try {
+                const collection = type === 'runner' ? 'runners' : 'users';
+                await db.collection(collection).doc(userId).update({
+                    suspended: true,
+                    suspendedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('User suspended', 'success');
+                loadAllUsers();
+                
+            } catch (error) {
+                console.error('Suspend user error:', error);
+                showToast('Error suspending user', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Verification Actions
+        async function viewVerification(verificationId) {
+            selectedVerificationId = verificationId;
+            
+            try {
+                const verificationDoc = await db.collection('verifications').doc(verificationId).get();
+                const verification = verificationDoc.data();
+                
+                const modalBody = document.getElementById('verificationModalBody');
+                
+                modalBody.innerHTML = `
+                    <h3>Runner: ${verification.runnerName || 'Unknown'}</h3>
+                    <p>Submitted: ${verification.submittedAt ? verification.submittedAt.toDate().toLocaleString() : 'Unknown'}</p>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4>ID Front:</h4>
+                        <img src="${verification.documents?.idFront}" style="max-width: 100%; border-radius: var(--radius); margin-bottom: 20px;">
+                        
+                        <h4>ID Back:</h4>
+                        <img src="${verification.documents?.idBack}" style="max-width: 100%; border-radius: var(--radius); margin-bottom: 20px;">
+                        
+                        <h4>Selfie with ID:</h4>
+                        <img src="${verification.documents?.selfie}" style="max-width: 100%; border-radius: var(--radius);">
+                    </div>
+                `;
+                
+                showModal('verificationModal');
+                
+            } catch (error) {
+                console.error('View verification error:', error);
+                showToast('Error loading verification', 'error');
+            }
+        }
+
+        async function approveVerification(verificationId) {
+            const id = verificationId || selectedVerificationId;
+            if (!id) return;
+            
+            showLoading();
+            
+            try {
+                // Update verification status
+                await db.collection('verifications').doc(id).update({
+                    status: 'approved',
+                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reviewedBy: currentAdmin.uid
+                });
+                
+                // Get verification to find runner ID
+                const verificationDoc = await db.collection('verifications').doc(id).get();
+                const verification = verificationDoc.data();
+                
+                // Update runner status
+                await db.collection('runners').doc(verification.runnerId).update({
+                    verificationStatus: 'verified',
+                    verifiedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showToast('Verification approved!', 'success');
+                closeModal('verificationModal');
+                
+                // Refresh data
+                loadPendingVerifications();
+                updateBadges();
+                
+            } catch (error) {
+                console.error('Approve verification error:', error);
+                showToast('Error approving verification', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function rejectVerification(verificationId) {
+            const id = verificationId || selectedVerificationId;
+            if (!id) return;
+            
+            const reason = prompt('Please provide a reason for rejection:');
+            if (!reason) return;
+            
+            showLoading();
+            
+            try {
+                await db.collection('verifications').doc(id).update({
+                    status: 'rejected',
+                    rejectionReason: reason,
+                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reviewedBy: currentAdmin.uid
+                });
+                
+                // Get verification to find runner ID
+                const verificationDoc = await db.collection('verifications').doc(id).get();
+                const verification = verificationDoc.data();
+                
+                // Update runner status
+                await db.collection('runners').doc(verification.runnerId).update({
+                    verificationStatus: 'rejected',
+                    verificationRejectionReason: reason
+                });
+                
+                showToast('Verification rejected', 'success');
+                closeModal('verificationModal');
+                
+                // Refresh data
+                loadPendingVerifications();
+                updateBadges();
+                
+            } catch (error) {
+                console.error('Reject verification error:', error);
+                showToast('Error rejecting verification', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Dispute Actions
+        async function viewDispute(disputeId) {
+            selectedDisputeId = disputeId;
+            
+            try {
+                const disputeDoc = await db.collection('disputes').doc(disputeId).get();
+                const dispute = disputeDoc.data();
+                
+                const modalBody = document.getElementById('disputeModalBody');
+                
+                modalBody.innerHTML = `
+                    <div class="dispute-header">
+                        <span class="dispute-id">Dispute #${disputeId.slice(-6)}</span>
+                        <span class="dispute-status status-${dispute.status}">${dispute.status.toUpperCase()}</span>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div><strong>Client:</strong> ${dispute.clientName || 'Unknown'}</div>
+                        <div><strong>Runner:</strong> ${dispute.runnerName || 'Unknown'}</div>
+                        <div><strong>Errand ID:</strong> #${dispute.errandId?.slice(-6) || 'Unknown'}</div>
+                        <div><strong>Amount in Escrow:</strong> KSH ${(dispute.amount || 0).toFixed(2)}</div>
+                    </div>
+                    
+                    <h4 style="margin-top: 20px;">Client's Claim:</h4>
+                    <div class="dispute-message">${dispute.clientMessage || 'No message'}</div>
+                    
+                    <h4>Runner's Response:</h4>
+                    <div class="dispute-message">${dispute.runnerMessage || 'No response yet'}</div>
+                    
+                    <h4>Evidence:</h4>
+                    ${dispute.evidence ? `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                            ${dispute.evidence.map(url => `
+                                <img src="${url}" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--radius); cursor: pointer;" onclick="window.open('${url}')">
+                            `).join('')}
+                        </div>
+                    ` : '<p>No evidence provided</p>'}
+                `;
+                
+                showModal('disputeModal');
+                
+            } catch (error) {
+                console.error('View dispute error:', error);
+                showToast('Error loading dispute', 'error');
+            }
+        }
+
+        async function resolveDispute(ruling) {
+            if (!selectedDisputeId) return;
+            
+            if (!confirm(`Resolve dispute in favor of the ${ruling}? This action cannot be undone.`)) return;
+            
+            showLoading();
+            
+            try {
+                const disputeDoc = await db.collection('disputes').doc(selectedDisputeId).get();
+                const dispute = disputeDoc.data();
+                
+                // Update dispute status
+                await db.collection('disputes').doc(selectedDisputeId).update({
+                    status: 'resolved',
+                    resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    resolvedBy: currentAdmin.uid,
+                    ruling: ruling
+                });
+                
+                // Release escrow based on ruling
+                if (ruling === 'client') {
+                    // Refund client
+                    await db.collection('users').doc(dispute.clientId).update({
+                        walletBalance: firebase.firestore.FieldValue.increment(dispute.amount)
+                    });
+                    
+                    // Log transaction
+                    await db.collection('transactions').add({
+                        userId: dispute.clientId,
+                        amount: dispute.amount,
+                        type: 'dispute_refund',
+                        status: 'completed',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    // Pay runner
+                    await db.collection('runners').doc(dispute.runnerId).update({
+                        walletBalance: firebase.firestore.FieldValue.increment(dispute.amount),
+                        totalEarnings: firebase.firestore.FieldValue.increment(dispute.amount)
+                    });
+                    
+                    // Log transaction
+                    await db.collection('transactions').add({
+                        userId: dispute.runnerId,
+                        amount: dispute.amount,
+                        type: 'dispute_payment',
+                        status: 'completed',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Update errand status
+                await db.collection('errands').doc(dispute.errandId).update({
+                    status: 'dispute_resolved',
+                    disputeRuling: ruling
+                });
+                
+                showToast(`Dispute resolved in favor of ${ruling}`, 'success');
+                closeModal('disputeModal');
+                
+                // Refresh data
+                loadRecentDisputes();
+                updateBadges();
+                
+            } catch (error) {
+                console.error('Resolve dispute error:', error);
+                showToast('Error resolving dispute', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function escalateDispute() {
+            if (!selectedDisputeId) return;
+            
+            showLoading();
+            
+            try {
+                await db.collection('disputes').doc(selectedDisputeId).update({
+                    status: 'escalated',
+                    escalatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    escalatedBy: currentAdmin.uid
+                });
+                
+                showToast('Dispute escalated to higher admin', 'success');
+                closeModal('disputeModal');
+                
+                // Refresh data
+                loadRecentDisputes();
+                updateBadges();
+                
+            } catch (error) {
+                console.error('Escalate dispute error:', error);
+                showToast('Error escalating dispute', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Support Ticket Actions
+        async function viewTicket(ticketId) {
+            selectedTicketId = ticketId;
+            
+            try {
+                const ticketDoc = await db.collection('support').doc(ticketId).get();
+                const ticket = ticketDoc.data();
+                
+                const modalBody = document.getElementById('ticketModalBody');
+                
+                modalBody.innerHTML = `
+                    <h3>${ticket.subject || 'Support Ticket'}</h3>
+                    <p><strong>From:</strong> ${ticket.userName || 'Unknown'} (${ticket.userType || 'User'})</p>
+                    <p><strong>Date:</strong> ${ticket.createdAt ? ticket.createdAt.toDate().toLocaleString() : 'Unknown'}</p>
+                    
+                    <div class="dispute-message" style="margin: 20px 0;">
+                        ${ticket.message || 'No message'}
+                    </div>
+                    
+                    ${ticket.response ? `
+                        <h4>Previous Response:</h4>
+                        <div class="dispute-message" style="background-color: #e3f2fd;">
+                            ${ticket.response}
+                        </div>
+                        <p style="font-size: 12px; color: var(--gray);">${ticket.respondedAt ? ticket.respondedAt.toDate().toLocaleString() : ''}</p>
+                    ` : ''}
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Your Response:</label>
+                        <textarea id="ticketResponse" class="form-control" rows="4" placeholder="Type your response..."></textarea>
+                    </div>
+                `;
+                
+                showModal('ticketModal');
+                
+            } catch (error) {
+                console.error('View ticket error:', error);
+                showToast('Error loading ticket', 'error');
+            }
+        }
+
+        async function respondToTicket() {
+            const response = document.getElementById('ticketResponse')?.value;
+            if (!response) {
+                showToast('Please enter a response', 'warning');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                await db.collection('support').doc(selectedTicketId).update({
+                    response: response,
+                    respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    respondedBy: currentAdmin.uid,
+                    status: 'in-progress'
+                });
+                
+                showToast('Response sent successfully', 'success');
+                closeModal('ticketModal');
+                loadSupportTickets();
+                
+            } catch (error) {
+                console.error('Respond to ticket error:', error);
+                showToast('Error sending response', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function markTicketResolved(ticketId) {
+            const id = ticketId || selectedTicketId;
+            if (!id) return;
+            
+            showLoading();
+            
+            try {
+                await db.collection('support').doc(id).update({
+                    status: 'resolved',
+                    resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    resolvedBy: currentAdmin.uid
+                });
+                
+                showToast('Ticket marked as resolved', 'success');
+                closeModal('ticketModal');
+                loadSupportTickets();
+                updateBadges();
+                
+            } catch (error) {
+                console.error('Resolve ticket error:', error);
+                showToast('Error resolving ticket', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Errand Actions
+        async function viewErrand(errandId) {
+            // Implementation for viewing errand details
+            showToast('View errand details - Coming soon', 'info');
+        }
+
+        // Commission Settings
+        async function saveCommissionSettings() {
+            const settings = {
+                defaultCommission: parseFloat(document.getElementById('defaultCommission').value),
+                deliveryCommission: parseFloat(document.getElementById('deliveryCommission').value),
+                shoppingCommission: parseFloat(document.getElementById('shoppingCommission').value),
+                repairCommission: parseFloat(document.getElementById('repairCommission').value),
+                minCommission: parseFloat(document.getElementById('minCommission').value),
+                withdrawalFee: parseFloat(document.getElementById('withdrawalFee').value),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedBy: currentAdmin.uid
+            };
+            
+            showLoading();
+            
+            try {
+                await db.collection('settings').doc('commission').set(settings, { merge: true });
+                showToast('Commission settings saved successfully', 'success');
+            } catch (error) {
+                console.error('Save commission error:', error);
+                showToast('Error saving settings', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function resetCommissionSettings() {
+            if (!confirm('Reset commission settings to defaults?')) return;
+            
+            document.getElementById('defaultCommission').value = '20';
+            document.getElementById('deliveryCommission').value = '20';
+            document.getElementById('shoppingCommission').value = '15';
+            document.getElementById('repairCommission').value = '15';
+            document.getElementById('minCommission').value = '50';
+            document.getElementById('withdrawalFee').value = '30';
+        }
+
+        // System Settings
+        async function saveSystemSettings() {
+            const settings = {
+                minBudget: parseFloat(document.getElementById('minBudget').value),
+                maxBudget: parseFloat(document.getElementById('maxBudget').value),
+                newUserBonus: parseFloat(document.getElementById('newUserBonus').value),
+                newRunnerBonus: parseFloat(document.getElementById('newRunnerBonus').value),
+                disputeTime: parseInt(document.getElementById('disputeTime').value),
+                autoCancelTime: parseInt(document.getElementById('autoCancelTime').value),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedBy: currentAdmin.uid
+            };
+            
+            showLoading();
+            
+            try {
+                await db.collection('settings').doc('system').set(settings, { merge: true });
+                showToast('System settings saved successfully', 'success');
+            } catch (error) {
+                console.error('Save system settings error:', error);
+                showToast('Error saving settings', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Utility Functions
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('currentDateTime').textContent = now.toLocaleString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        function showPage(pageId) {
+            pages.forEach(page => page.classList.remove('active'));
+            const pageElement = document.getElementById(`${pageId}Page`);
+            if (pageElement) {
+                pageElement.classList.add('active');
+            }
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showToast(message, type = 'info') {
+            toast.className = `toast ${type}`;
+            document.getElementById('toastMessage').textContent = message;
+            
+            const icon = document.getElementById('toastIcon');
+            if (type === 'success') icon.className = 'fas fa-check-circle';
+            else if (type === 'error') icon.className = 'fas fa-exclamation-circle';
+            else icon.className = 'fas fa-info-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function showLoading() {
+            loadingSpinner.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingSpinner.style.display = 'none';
+        }
+
+        function showApp() {
+            loginPage.style.display = 'none';
+            adminDashboard.style.display = 'flex';
+            document.getElementById('adminName').textContent = adminData.name || 'Admin';
+        }
+
+        function showLogin() {
+            loginPage.style.display = 'flex';
+            adminDashboard.style.display = 'none';
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Make functions globally available
+        window.viewUser = viewUser;
+        window.banUser = banUser;
+        window.unbanUser = unbanUser;
+        window.suspendUser = suspendUser;
+        window.viewVerification = viewVerification;
+        window.approveVerification = approveVerification;
+        window.rejectVerification = rejectVerification;
+        window.viewDispute = viewDispute;
+        window.resolveDispute = resolveDispute;
+        window.escalateDispute = escalateDispute;
+        window.viewErrand = viewErrand;
+        window.viewTicket = viewTicket;
+        window.respondToTicket = respondToTicket;
+        window.markTicketResolved = markTicketResolved;
+        window.saveCommissionSettings = saveCommissionSettings;
+        window.resetCommissionSettings = resetCommissionSettings;
+        window.saveSystemSettings = saveSystemSettings;
+        window.showPage = showPage;
+        window.showModal = showModal;
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>
