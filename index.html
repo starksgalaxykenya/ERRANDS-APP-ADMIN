@@ -1,1457 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ERRANDS - Admin Dashboard</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        /* Root Variables */
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-            --dark: #1f2937;
-            --light: #f9fafb;
-            --gray: #9ca3af;
-            --border: #e5e7eb;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 12px;
-            --transition: all 0.3s ease;
-        }
-
-        /* Reset & Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: var(--dark);
-        }
-
-        /* Login Page Styles */
-        .login-container {
-            display: flex;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        }
-
-        .login-left {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            color: white;
-        }
-
-        .login-left h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .login-left p {
-            font-size: 20px;
-            line-height: 1.6;
-            opacity: 0.9;
-            max-width: 500px;
-            text-align: center;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 50px;
-        }
-
-        .feature-item {
-            text-align: center;
-        }
-
-        .feature-item i {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
-
-        .feature-item h3 {
-            margin-bottom: 10px;
-        }
-
-        .feature-item p {
-            font-size: 14px;
-        }
-
-        .login-right {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: var(--radius);
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-
-        .login-header p {
-            color: var(--gray);
-        }
-
-        .demo-credentials {
-            background: var(--light);
-            padding: 15px;
-            border-radius: var(--radius);
-            margin: 20px 0;
-            font-size: 14px;
-            border: 1px solid var(--border);
-        }
-
-        .demo-credentials p {
-            margin: 5px 0;
-            color: var(--dark);
-        }
-
-        .demo-credentials strong {
-            color: var(--primary);
-        }
-
-        .error-message {
-            color: var(--danger);
-            background: #fee2e2;
-            padding: 10px;
-            border-radius: var(--radius);
-            margin-bottom: 15px;
-            font-size: 14px;
-            display: none;
-        }
-
-        /* Main Dashboard Layout */
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 280px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 25px 0;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 100;
-            transition: var(--transition);
-        }
-
-        .sidebar-header {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
-        }
-
-        .logo {
-            font-family: 'Poppins', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            text-decoration: none;
-        }
-
-        .admin-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-top: 10px;
-            display: inline-block;
-        }
-
-        .nav-links {
-            list-style: none;
-            flex: 1;
-            padding: 0 15px;
-        }
-
-        .nav-item {
-            margin-bottom: 5px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            color: white;
-            text-decoration: none;
-            border-radius: var(--radius);
-            transition: var(--transition);
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .nav-link i {
-            font-size: 18px;
-            width: 24px;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateX(5px);
-        }
-
-        .badge {
-            background: var(--danger);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 11px;
-            margin-left: auto;
-        }
-
-        .admin-profile {
-            padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-        }
-
-        .admin-info h4 {
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .admin-info p {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            padding: 25px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 20px 25px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .date-time {
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: var(--transition);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-info h3 {
-            font-size: 14px;
-            color: var(--gray);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-        }
-
-        /* Charts */
-        .charts-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart-card {
-            background: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .chart-card h2 {
-            font-size: 18px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        canvas {
-            max-height: 300px;
-            width: 100% !important;
-        }
-
-        /* Tables */
-        .table-container {
-            background: white;
-            border-radius: var(--radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .table-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--light);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 8px 15px;
-        }
-
-        .search-box i {
-            color: var(--gray);
-        }
-
-        .search-box input {
-            border: none;
-            background: none;
-            outline: none;
-            font-size: 14px;
-            width: 250px;
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 8px 15px;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            background: white;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 13px;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            padding: 15px;
-            background: var(--light);
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--gray);
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        tr:hover {
-            background: var(--light);
-        }
-
-        .user-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-avatar-small {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-active, .status-verified, .status-completed {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-pending, .status-waiting {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-banned, .status-rejected, .status-cancelled {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-inactive {
-            background: #e5e7eb;
-            color: #374151;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 5px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        .action-btn.view { background: var(--info); color: white; }
-        .action-btn.edit { background: var(--warning); color: white; }
-        .action-btn.approve { background: var(--success); color: white; }
-        .action-btn.reject, .action-btn.ban { background: var(--danger); color: white; }
-        .action-btn.suspend { background: var(--gray); color: white; }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            background: white;
-        }
-
-        .modal-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gray);
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .modal-footer {
-            padding: 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            position: sticky;
-            bottom: 0;
-            background: white;
-        }
-
-        /* Forms */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        /* Commission Settings */
-        .commission-settings {
-            display: grid;
-            gap: 15px;
-        }
-
-        .commission-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: var(--light);
-            border-radius: var(--radius);
-        }
-
-        .commission-input {
-            width: 120px;
-            padding: 8px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            text-align: right;
-        }
-
-        /* Verification Documents */
-        .verification-doc {
-            margin-bottom: 20px;
-        }
-
-        .verification-doc img {
-            max-width: 100%;
-            border-radius: var(--radius);
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        /* Dispute Card */
-        .dispute-card {
-            background: var(--light);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--warning);
-        }
-
-        .dispute-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .dispute-id {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .dispute-message {
-            background: white;
-            padding: 15px;
-            border-radius: var(--radius);
-            margin: 15px 0;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            z-index: 1001;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: var(--transition);
-            max-width: 350px;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.error { border-left: 4px solid var(--danger); }
-        .toast.warning { border-left: 4px solid var(--warning); }
-
-        /* Loading */
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .sidebar {
-                width: 80px;
-            }
-            
-            .sidebar-header, .admin-profile, .nav-link span, .logo span, .admin-badge {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 80px;
-            }
-            
-            .nav-link {
-                justify-content: center;
-                padding: 15px;
-            }
-            
-            .nav-link i {
-                margin: 0;
-                font-size: 20px;
-            }
-            
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .login-container {
-                flex-direction: column;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .search-box input {
-                width: 180px;
-            }
-            
-            table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Login Page -->
-    <div id="loginPage" class="login-container">
-        <div class="login-left">
-            <h1>⚙️ ERRANDS ADMIN</h1>
-            <p>Complete platform management system. Monitor, verify, and control all aspects of your errand service.</p>
-            
-            <div class="feature-grid">
-                <div class="feature-item">
-                    <i class="fas fa-users"></i>
-                    <h3>User Management</h3>
-                    <p>Verify, approve, or ban users</p>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-id-card"></i>
-                    <h3>Verifications</h3>
-                    <p>Review runner documents</p>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-gavel"></i>
-                    <h3>Dispute Resolution</h3>
-                    <p>Handle conflicts fairly</p>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Analytics</h3>
-                    <p>Track platform metrics</p>
-                </div>
-            </div>
-        </div>
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyB-cyGvUm_XZBvP62OpCLoELYK5b8jABig",
+        authDomain: "finance-report-246b1.firebaseapp.com",
+        projectId: "finance-report-246b1",
+        storageBucket: "finance-report-246b1.firebasestorage.app",
+        messagingSenderId: "506353861080",
+        appId: "1:506353861080:web:b5b2526f2828f380d9b2ad"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Enable Firestore persistence
+    db.enablePersistence().catch(err => {
+        console.log('Persistence error:', err);
+    });
+
+    // Global Variables
+    let currentAdmin = null;
+    let adminData = {};
+    let charts = {};
+    let selectedUserId = null;
+    let selectedUserType = null;
+    let selectedVerificationId = null;
+    let selectedDisputeId = null;
+    let selectedTicketId = null;
+
+    // DOM Elements
+    const loginPage = document.getElementById('loginPage');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const toast = document.getElementById('adminToast');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        initEventListeners();
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
         
-        <div class="login-right">
-            <div class="login-card">
-                <div class="login-header">
-                    <h1>Admin Login</h1>
-                    <p>Secure access to management console</p>
-                </div>
-                
-                <div class="demo-credentials">
-                    <p><strong>🔐 Demo Credentials:</strong></p>
-                    <p><i class="fas fa-envelope"></i> admin@errands.com</p>
-                    <p><i class="fas fa-lock"></i> Admin@123</p>
-                    <p style="margin-top: 10px; font-size: 12px; color: var(--gray);">First login will auto-create admin account</p>
-                </div>
-                
-                <div id="loginError" class="error-message"></div>
-                
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" id="adminEmail" class="form-control" placeholder="Enter admin email" value="admin@errands.com">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" id="adminPassword" class="form-control" placeholder="Enter password" value="Admin@123">
-                </div>
-                
-                <button id="adminLoginBtn" class="btn btn-primary" style="width: 100%; padding: 12px;">
-                    <i class="fas fa-lock"></i> Access Dashboard
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Admin Dashboard -->
-    <div id="adminDashboard" class="app-container" style="display: none;">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-running"></i>
-                    <span>ERRANDS ADMIN</span>
-                </div>
-                <div class="admin-badge">SUPER ADMIN</div>
-            </div>
-            
-            <ul class="nav-links">
-                <li class="nav-item">
-                    <a class="nav-link active" data-page="dashboard">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="users">
-                        <i class="fas fa-users"></i>
-                        <span>User Management</span>
-                        <span class="badge" id="pendingUsersBadge">0</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="verifications">
-                        <i class="fas fa-id-card"></i>
-                        <span>Verifications</span>
-                        <span class="badge" id="pendingVerificationsBadge">0</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="errands">
-                        <i class="fas fa-tasks"></i>
-                        <span>Errands</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="disputes">
-                        <i class="fas fa-gavel"></i>
-                        <span>Disputes</span>
-                        <span class="badge" id="disputesBadge">0</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="payments">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Payments</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="commission">
-                        <i class="fas fa-percent"></i>
-                        <span>Commission Settings</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="support">
-                        <i class="fas fa-headset"></i>
-                        <span>Support Tickets</span>
-                        <span class="badge" id="supportBadge">0</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="analytics">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Analytics</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-page="settings">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="adminLogoutBtn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </li>
-            </ul>
-            
-            <div class="admin-profile">
-                <img id="adminAvatar" src="https://ui-avatars.com/api/?name=Admin&background=667eea&color=fff" alt="Admin" class="admin-avatar">
-                <div class="admin-info">
-                    <h4 id="adminName">Admin User</h4>
-                    <p id="adminRole">Super Administrator</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <!-- Header -->
-            <div class="header">
-                <h1 class="page-title" id="currentPageTitle">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </h1>
-                <div class="date-time" id="currentDateTime"></div>
-            </div>
-
-            <!-- Dashboard Page -->
-            <div id="dashboardPage" class="page active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>Total Users</h3>
-                            <div class="stat-number" id="totalUsers">0</div>
-                        </div>
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>Active Runners</h3>
-                            <div class="stat-number" id="activeRunners">0</div>
-                        </div>
-                        <div class="stat-icon"><i class="fas fa-running"></i></div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>Total Errands</h3>
-                            <div class="stat-number" id="totalErrands">0</div>
-                        </div>
-                        <div class="stat-icon"><i class="fas fa-tasks"></i></div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>Commission Earned</h3>
-                            <div class="stat-number" id="totalCommission">KSH 0</div>
-                        </div>
-                        <div class="stat-icon"><i class="fas fa-coins"></i></div>
-                    </div>
-                </div>
-
-                <div class="charts-row">
-                    <div class="chart-card">
-                        <h2>Platform Activity (Last 7 Days)</h2>
-                        <canvas id="activityChart"></canvas>
-                    </div>
-                    
-                    <div class="chart-card">
-                        <h2>User Distribution</h2>
-                        <canvas id="userChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Pending Verifications</h2>
-                        <button class="btn btn-outline" onclick="showPage('verifications')">
-                            View All <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                    <table id="pendingVerificationsTable">
-                        <thead>
-                            <tr>
-                                <th>Runner</th>
-                                <th>Submitted</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pendingVerificationsBody">
-                            <tr><td colspan="4" style="text-align: center;">No pending verifications</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Recent Disputes</h2>
-                        <button class="btn btn-outline" onclick="showPage('disputes')">
-                            View All <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </div>
-                    <table id="recentDisputesTable">
-                        <thead>
-                            <tr>
-                                <th>Dispute ID</th>
-                                <th>Client/Runner</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentDisputesBody">
-                            <tr><td colspan="5" style="text-align: center;">No active disputes</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Users Page -->
-            <div id="usersPage" class="page">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>User Management</h2>
-                        <div style="display: flex; gap: 15px;">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="userSearch" placeholder="Search users...">
-                            </div>
-                            <div class="filter-buttons">
-                                <button class="filter-btn active" data-user-filter="all">All</button>
-                                <button class="filter-btn" data-user-filter="client">Clients</button>
-                                <button class="filter-btn" data-user-filter="runner">Runners</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Type</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Joined</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersTableBody">
-                            <tr><td colspan="7" style="text-align: center;">Loading users...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Verifications Page -->
-            <div id="verificationsPage" class="page">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Runner Verifications</h2>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-verification-filter="pending">Pending</button>
-                            <button class="filter-btn" data-verification-filter="approved">Approved</button>
-                            <button class="filter-btn" data-verification-filter="rejected">Rejected</button>
-                        </div>
-                    </div>
-                    
-                    <table id="verificationsTable">
-                        <thead>
-                            <tr>
-                                <th>Runner</th>
-                                <th>Submitted</th>
-                                <th>Documents</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="verificationsBody">
-                            <tr><td colspan="5" style="text-align: center;">Loading verifications...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Errands Page -->
-            <div id="errandsPage" class="page">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>All Errands</h2>
-                        <div style="display: flex; gap: 15px;">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="errandSearch" placeholder="Search errands...">
-                            </div>
-                            <div class="filter-buttons">
-                                <button class="filter-btn active" data-errand-filter="all">All</button>
-                                <button class="filter-btn" data-errand-filter="pending">Pending</button>
-                                <button class="filter-btn" data-errand-filter="active">Active</button>
-                                <button class="filter-btn" data-errand-filter="completed">Completed</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <table id="errandsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Type</th>
-                                <th>Client</th>
-                                <th>Runner</th>
-                                <th>Budget</th>
-                                <th>Commission</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="errandsTableBody">
-                            <tr><td colspan="8" style="text-align: center;">Loading errands...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Disputes Page -->
-            <div id="disputesPage" class="page">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Dispute Resolution Center</h2>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-dispute-filter="open">Open</button>
-                            <button class="filter-btn" data-dispute-filter="resolved">Resolved</button>
-                            <button class="filter-btn" data-dispute-filter="escalated">Escalated</button>
-                        </div>
-                    </div>
-                    
-                    <div id="disputesList"></div>
-                </div>
-            </div>
-
-            <!-- Payments Page -->
-            <div id="paymentsPage" class="page">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>Total Revenue</h3>
-                            <div class="stat-number" id="totalRevenue">KSH 0</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-info">
-                            <h3>Pending Payouts</h3>
-                            <div class="stat-number" id="pendingPayouts">KSH 0</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Transaction History</h2>
-                    </div>
-                    
-                    <table id="transactionsTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>User</th>
-                                <th>Amount</th>
-                                <th>Commission</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="transactionsBody">
-                            <tr><td colspan="6" style="text-align: center;">Loading transactions...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Commission Page -->
-            <div id="commissionPage" class="page">
-                <div class="table-container">
-                    <h2 style="margin-bottom: 20px;">Commission Settings</h2>
-                    
-                    <div class="commission-settings">
-                        <div class="commission-item">
-                            <label>Default Platform Fee (%)</label>
-                            <input type="number" id="defaultCommission" class="commission-input" value="20" min="0" max="50">
-                        </div>
-                        
-                        <div class="commission-item">
-                            <label>Delivery Errands Fee (%)</label>
-                            <input type="number" id="deliveryCommission" class="commission-input" value="20" min="0" max="50">
-                        </div>
-                        
-                        <div class="commission-item">
-                            <label>Shopping Errands Fee (%)</label>
-                            <input type="number" id="shoppingCommission" class="commission-input" value="15" min="0" max="50">
-                        </div>
-                        
-                        <div class="commission-item">
-                            <label>Minimum Commission (KSH)</label>
-                            <input type="number" id="minCommission" class="commission-input" value="50" min="0">
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="saveCommissionSettings()" style="margin-top: 20px;">
-                        <i class="fas fa-save"></i> Save Settings
-                    </button>
-                </div>
-            </div>
-
-            <!-- Support Page -->
-            <div id="supportPage" class="page">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Support Tickets</h2>
-                        <div class="filter-buttons">
-                            <button class="filter-btn active" data-ticket-filter="open">Open</button>
-                            <button class="filter-btn" data-ticket-filter="resolved">Resolved</button>
-                        </div>
-                    </div>
-                    
-                    <div id="ticketsList"></div>
-                </div>
-            </div>
-
-            <!-- Analytics Page -->
-            <div id="analyticsPage" class="page">
-                <div class="charts-row">
-                    <div class="chart-card">
-                        <h2>Revenue Overview</h2>
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                    <div class="chart-card">
-                        <h2>User Growth</h2>
-                        <canvas id="growthChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Page -->
-            <div id="settingsPage" class="page">
-                <div class="table-container">
-                    <h2 style="margin-bottom: 20px;">System Settings</h2>
-                    
-                    <div class="commission-settings">
-                        <div class="commission-item">
-                            <label>Minimum Errand Budget</label>
-                            <input type="number" id="minBudget" class="commission-input" value="500" min="100">
-                        </div>
-                        
-                        <div class="commission-item">
-                            <label>New User Bonus (KSH)</label>
-                            <input type="number" id="newUserBonus" class="commission-input" value="5000" min="0">
-                        </div>
-                        
-                        <div class="commission-item">
-                            <label>Dispute Resolution Time (Hours)</label>
-                            <input type="number" id="disputeTime" class="commission-input" value="48" min="24">
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="saveSystemSettings()" style="margin-top: 20px;">
-                        <i class="fas fa-save"></i> Save Settings
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modals -->
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>User Details</h2>
-                <button class="close-modal" onclick="closeModal('userModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="userModalBody"></div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('userModal')">Close</button>
-                <button class="btn btn-success" onclick="approveUser()" id="approveUserBtn" style="display: none;">Approve</button>
-                <button class="btn btn-danger" onclick="banUser()" id="banUserBtn">Ban User</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="verificationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Verification Documents</h2>
-                <button class="close-modal" onclick="closeModal('verificationModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="verificationModalBody"></div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('verificationModal')">Close</button>
-                <button class="btn btn-success" onclick="approveVerification()">Approve</button>
-                <button class="btn btn-danger" onclick="rejectVerification()">Reject</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="disputeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Dispute Resolution</h2>
-                <button class="close-modal" onclick="closeModal('disputeModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="disputeModalBody"></div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('disputeModal')">Close</button>
-                <button class="btn btn-success" onclick="resolveDispute('client')">Rule for Client</button>
-                <button class="btn btn-success" onclick="resolveDispute('runner')">Rule for Runner</button>
-                <button class="btn btn-warning" onclick="escalateDispute()">Escalate</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="ticketModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Support Ticket</h2>
-                <button class="close-modal" onclick="closeModal('ticketModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="ticketModalBody"></div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('ticketModal')">Close</button>
-                <button class="btn btn-primary" onclick="respondToTicket()">Send Response</button>
-                <button class="btn btn-success" onclick="markTicketResolved()">Mark Resolved</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast & Loading -->
-    <div id="adminToast" class="toast">
-        <i id="toastIcon" class="fas fa-check-circle"></i>
-        <span id="toastMessage"></span>
-    </div>
-
-    <div id="loadingSpinner" class="loading-spinner">
-        <div class="spinner"></div>
-    </div>
-
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB-cyGvUm_XZBvP62OpCLoELYK5b8jABig",
-            authDomain: "finance-report-246b1.firebaseapp.com",
-            projectId: "finance-report-246b1",
-            storageBucket: "finance-report-246b1.firebasestorage.app",
-            messagingSenderId: "506353861080",
-            appId: "1:506353861080:web:b5b2526f2828f380d9b2ad"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-
-        // Global Variables
-        let currentAdmin = null;
-        let adminData = {};
-        let charts = {};
-        let selectedUserId = null;
-        let selectedUserType = null;
-        let selectedVerificationId = null;
-        let selectedDisputeId = null;
-        let selectedTicketId = null;
-
-        // DOM Elements
-        const loginPage = document.getElementById('loginPage');
-        const adminDashboard = document.getElementById('adminDashboard');
-        const pages = document.querySelectorAll('.page');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const toast = document.getElementById('adminToast');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            initEventListeners();
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-            
-            // Check auth state
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    // Check if user is admin
+        // Check auth state
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Check if user is admin
+                try {
                     const adminDoc = await db.collection('admins').doc(user.uid).get();
                     
                     if (adminDoc.exists) {
@@ -1460,168 +57,261 @@
                         showApp();
                         loadDashboardData();
                     } else {
-                        // Not an admin, sign out
+                        // User exists but is not an admin
+                        console.log('User is not an admin');
                         await auth.signOut();
                         showLogin();
                         showLoginError('Access denied. Admin privileges required.');
                     }
-                } else {
+                } catch (error) {
+                    console.error('Auth check error:', error);
+                    await auth.signOut();
                     showLogin();
+                }
+            } else {
+                showLogin();
+            }
+        });
+    });
+
+    // Event Listeners
+    function initEventListeners() {
+        // Login
+        document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+        
+        // Enter key on password field
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') adminLogin();
+        });
+        
+        // Navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.getAttribute('data-page');
+                
+                if (this.id === 'adminLogoutBtn') {
+                    adminLogout();
+                } else {
+                    showPage(page);
+                    
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const titleSpan = document.querySelector('#currentPageTitle span');
+                    const icon = this.querySelector('i').cloneNode(true);
+                    document.querySelector('#currentPageTitle').innerHTML = '';
+                    document.querySelector('#currentPageTitle').appendChild(icon);
+                    document.querySelector('#currentPageTitle').appendChild(document.createTextNode(' '));
+                    document.querySelector('#currentPageTitle').appendChild(document.createTextNode(this.querySelector('span').textContent));
                 }
             });
         });
-
-        // Event Listeners
-        function initEventListeners() {
-            // Login
-            document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
-            
-            // Enter key on password field
-            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') adminLogin();
+        
+        // Search
+        document.getElementById('userSearch')?.addEventListener('input', debounce(filterUsers, 300));
+        document.getElementById('errandSearch')?.addEventListener('input', debounce(filterErrands, 300));
+        
+        // Filter buttons
+        document.querySelectorAll('[data-user-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-user-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterUsersByType(this.getAttribute('data-user-filter'));
             });
-            
-            // Navigation
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = this.getAttribute('data-page');
-                    
-                    if (this.id === 'adminLogoutBtn') {
-                        adminLogout();
-                    } else {
-                        showPage(page);
-                        
-                        navLinks.forEach(l => l.classList.remove('active'));
-                        this.classList.add('active');
-                        
-                        const titleSpan = document.querySelector('#currentPageTitle span');
-                        const icon = this.querySelector('i').cloneNode(true);
-                        document.querySelector('#currentPageTitle').innerHTML = '';
-                        document.querySelector('#currentPageTitle').appendChild(icon);
-                        document.querySelector('#currentPageTitle').appendChild(document.createTextNode(' '));
-                        document.querySelector('#currentPageTitle').appendChild(document.createTextNode(this.querySelector('span').textContent));
-                    }
-                });
+        });
+        
+        document.querySelectorAll('[data-verification-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-verification-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterVerifications(this.getAttribute('data-verification-filter'));
             });
-            
-            // Search
-            document.getElementById('userSearch')?.addEventListener('input', debounce(filterUsers, 300));
-            document.getElementById('errandSearch')?.addEventListener('input', debounce(filterErrands, 300));
-            
-            // Filter buttons
-            document.querySelectorAll('[data-user-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-user-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterUsersByType(this.getAttribute('data-user-filter'));
-                });
+        });
+        
+        document.querySelectorAll('[data-errand-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-errand-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterErrandsByStatus(this.getAttribute('data-errand-filter'));
             });
-            
-            // Close modals on outside click
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    e.target.classList.remove('active');
-                }
+        });
+        
+        document.querySelectorAll('[data-dispute-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-dispute-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterDisputes(this.getAttribute('data-dispute-filter'));
             });
-        }
-
-        // Admin Login
-        async function adminLogin() {
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            
-            if (!email || !password) {
-                showLoginError('Please enter email and password');
-                return;
+        });
+        
+        document.querySelectorAll('[data-ticket-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-ticket-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterTickets(this.getAttribute('data-ticket-filter'));
+            });
+        });
+        
+        // Close modals on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
             }
-            
-            showLoading();
-            
+        });
+    }
+
+    // Admin Login - FIXED VERSION
+    async function adminLogin() {
+        const email = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPassword').value;
+        
+        if (!email || !password) {
+            showLoginError('Please enter email and password');
+            return;
+        }
+        
+        showLoading();
+        
+        try {
+            // First, try to sign in
+            let userCredential;
             try {
-                // Try to sign in
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // Check if admin document exists
-                const adminDoc = await db.collection('admins').doc(user.uid).get();
-                
-                if (!adminDoc.exists) {
-                    // Create admin document for this user
-                    await db.collection('admins').doc(user.uid).set({
-                        email: email,
-                        name: 'Admin User',
-                        role: 'super_admin',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        permissions: ['all']
-                    });
-                    
-                    showToast('Admin account created successfully!', 'success');
-                }
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                
-                // If user doesn't exist, create new admin account
-                if (error.code === 'auth/user-not-found') {
+                userCredential = await auth.signInWithEmailAndPassword(email, password);
+            } catch (signInError) {
+                // If user doesn't exist, create new account
+                if (signInError.code === 'auth/user-not-found') {
                     try {
-                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                        const user = userCredential.user;
+                        userCredential = await auth.createUserWithEmailAndPassword(email, password);
                         
-                        // Create admin document
-                        await db.collection('admins').doc(user.uid).set({
+                        // Create admin document for new user
+                        await db.collection('admins').doc(userCredential.user.uid).set({
                             email: email,
-                            name: 'Admin User',
+                            name: email.split('@')[0],
                             role: 'super_admin',
                             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                             permissions: ['all']
                         });
                         
-                        showToast('Admin account created! Please log in again.', 'success');
-                        await auth.signOut();
+                        showToast('Admin account created successfully!', 'success');
                     } catch (createError) {
-                        showLoginError('Error creating admin: ' + createError.message);
+                        console.error('Create account error:', createError);
+                        showLoginError('Error creating account: ' + getErrorMessage(createError));
+                        hideLoading();
+                        return;
                     }
                 } else {
-                    showLoginError('Login failed: ' + error.message);
+                    // Other sign-in error
+                    console.error('Sign in error:', signInError);
+                    showLoginError('Login failed: ' + getErrorMessage(signInError));
+                    hideLoading();
+                    return;
                 }
-            } finally {
-                hideLoading();
             }
+            
+            // If we get here, we have a user
+            const user = userCredential.user;
+            
+            // Check if admin document exists (for existing users)
+            const adminDoc = await db.collection('admins').doc(user.uid).get();
+            
+            if (!adminDoc.exists) {
+                // User exists but is not an admin
+                await auth.signOut();
+                showLoginError('Access denied. Admin privileges required.');
+                hideLoading();
+                return;
+            }
+            
+            // Success - user is admin
+            currentAdmin = user;
+            adminData = adminDoc.data();
+            
+            showApp();
+            loadDashboardData();
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            showLoginError('Login failed: ' + getErrorMessage(error));
+        } finally {
+            hideLoading();
         }
+    }
 
-        async function adminLogout() {
+    // Helper function to get user-friendly error messages
+    function getErrorMessage(error) {
+        const errorCode = error.code;
+        switch(errorCode) {
+            case 'auth/invalid-email':
+                return 'Invalid email address format';
+            case 'auth/user-disabled':
+                return 'This account has been disabled';
+            case 'auth/user-not-found':
+                return 'No account found with this email';
+            case 'auth/wrong-password':
+                return 'Incorrect password';
+            case 'auth/email-already-in-use':
+                return 'Email already in use';
+            case 'auth/weak-password':
+                return 'Password should be at least 6 characters';
+            case 'auth/network-request-failed':
+                return 'Network error. Check your connection';
+            case 'auth/too-many-requests':
+                return 'Too many failed attempts. Try again later';
+            default:
+                return error.message || 'An unknown error occurred';
+        }
+    }
+
+    async function adminLogout() {
+        try {
             await auth.signOut();
             showLogin();
             showToast('Logged out successfully', 'success');
+        } catch (error) {
+            console.error('Logout error:', error);
+            showToast('Error logging out', 'error');
         }
+    }
 
-        // Dashboard Data Loading
-        async function loadDashboardData() {
-            showLoading();
-            
-            try {
-                await Promise.all([
-                    loadStats(),
-                    loadPendingVerifications(),
-                    loadRecentDisputes(),
-                    loadAllUsers(),
-                    loadAllErrands(),
-                    loadTransactions(),
-                    loadSupportTickets(),
-                    loadVerifications(),
-                    updateBadges(),
-                    initCharts()
-                ]);
-            } catch (error) {
-                console.error('Load error:', error);
-                showToast('Error loading data: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
+    function showLoginError(message) {
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    // Dashboard Data Loading
+    async function loadDashboardData() {
+        showLoading();
+        
+        try {
+            await Promise.all([
+                loadStats(),
+                loadPendingVerifications(),
+                loadRecentDisputes(),
+                loadAllUsers(),
+                loadAllErrands(),
+                loadTransactions(),
+                loadSupportTickets(),
+                loadVerifications(),
+                updateBadges(),
+                initCharts()
+            ]);
+        } catch (error) {
+            console.error('Load error:', error);
+            showToast('Error loading data: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        async function loadStats() {
+    async function loadStats() {
+        try {
             // Get users count
             const usersSnap = await db.collection('users').get();
             const runnersSnap = await db.collection('runners').get();
@@ -1648,9 +338,13 @@
             let pendingPayouts = 0;
             withdrawalsSnap.forEach(doc => pendingPayouts += doc.data().amount || 0);
             document.getElementById('pendingPayouts').textContent = `KSH ${pendingPayouts.toFixed(2)}`;
+        } catch (error) {
+            console.error('Stats error:', error);
         }
+    }
 
-        async function loadPendingVerifications() {
+    async function loadPendingVerifications() {
+        try {
             const snapshot = await db.collection('verifications')
                 .where('status', '==', 'pending')
                 .orderBy('submittedAt', 'desc')
@@ -1682,13 +376,18 @@
                         <td>
                             <button class="action-btn view" onclick="viewVerification('${doc.id}')">View</button>
                             <button class="action-btn approve" onclick="approveVerification('${doc.id}')">Approve</button>
+                            <button class="action-btn reject" onclick="rejectVerification('${doc.id}')">Reject</button>
                         </td>
                     </tr>
                 `;
             });
+        } catch (error) {
+            console.error('Load verifications error:', error);
         }
+    }
 
-        async function loadRecentDisputes() {
+    async function loadRecentDisputes() {
+        try {
             const snapshot = await db.collection('disputes')
                 .where('status', 'in', ['open', 'escalated'])
                 .orderBy('createdAt', 'desc')
@@ -1705,19 +404,27 @@
             
             snapshot.forEach(doc => {
                 const d = doc.data();
+                const date = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : 'Unknown';
+                
                 tbody.innerHTML += `
                     <tr>
                         <td>#${doc.id.slice(-6)}</td>
                         <td>${d.clientName || 'Client'} vs ${d.runnerName || 'Runner'}</td>
                         <td>KSH ${(d.amount || 0).toFixed(2)}</td>
                         <td><span class="status-badge status-${d.status}">${d.status.toUpperCase()}</span></td>
-                        <td><button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button></td>
+                        <td>
+                            <button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button>
+                        </td>
                     </tr>
                 `;
             });
+        } catch (error) {
+            console.error('Load disputes error:', error);
         }
+    }
 
-        async function loadAllUsers() {
+    async function loadAllUsers() {
+        try {
             const usersSnap = await db.collection('users').orderBy('createdAt', 'desc').get();
             const runnersSnap = await db.collection('runners').orderBy('createdAt', 'desc').get();
             
@@ -1726,44 +433,52 @@
             
             usersSnap.forEach(doc => addUserToTable(doc, 'client'));
             runnersSnap.forEach(doc => addUserToTable(doc, 'runner'));
+        } catch (error) {
+            console.error('Load users error:', error);
         }
+    }
 
-        function addUserToTable(doc, type) {
-            const user = doc.data();
-            const date = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'Unknown';
-            const status = user.banned ? 'banned' : 'active';
-            
-            document.getElementById('usersTableBody').innerHTML += `
-                <tr data-user-type="${type}" data-user-id="${doc.id}">
-                    <td>
-                        <div class="user-cell">
-                            <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff`}" class="user-avatar-small">
-                            ${user.name || 'Unknown'}
-                        </div>
-                    </td>
-                    <td>${type === 'runner' ? '🏃 Runner' : '👤 Client'}</td>
-                    <td>${user.email || ''}</td>
-                    <td>${user.phone || 'Not provided'}</td>
-                    <td>${date}</td>
-                    <td><span class="status-badge status-${status}">${status.toUpperCase()}</span></td>
-                    <td>
+    function addUserToTable(doc, type) {
+        const user = doc.data();
+        const date = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'Unknown';
+        const status = user.banned ? 'banned' : 'active';
+        
+        document.getElementById('usersTableBody').innerHTML += `
+            <tr data-user-type="${type}" data-user-id="${doc.id}">
+                <td>
+                    <div class="user-cell">
+                        <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff`}" class="user-avatar-small">
+                        ${user.name || 'Unknown'}
+                    </div>
+                </td>
+                <td>${type === 'runner' ? '🏃 Runner' : '👤 Client'}</td>
+                <td>${user.email || ''}</td>
+                <td>${user.phone || 'Not provided'}</td>
+                <td>${date}</td>
+                <td><span class="status-badge status-${status}">${status.toUpperCase()}</span></td>
+                <td>
+                    <div class="action-buttons">
                         <button class="action-btn view" onclick="viewUser('${doc.id}', '${type}')">View</button>
                         ${!user.banned ? 
                             `<button class="action-btn ban" onclick="banUser('${doc.id}', '${type}')">Ban</button>` : 
                             `<button class="action-btn approve" onclick="unbanUser('${doc.id}', '${type}')">Unban</button>`
                         }
-                    </td>
-                </tr>
-            `;
-        }
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
 
-        async function loadAllErrands() {
+    async function loadAllErrands() {
+        try {
             const snapshot = await db.collection('errands').orderBy('createdAt', 'desc').get();
             const tbody = document.getElementById('errandsTableBody');
             tbody.innerHTML = '';
             
             snapshot.forEach(doc => {
                 const e = doc.data();
+                const date = e.createdAt ? e.createdAt.toDate().toLocaleDateString() : 'Unknown';
+                
                 tbody.innerHTML += `
                     <tr>
                         <td>#${doc.id.slice(-6)}</td>
@@ -1773,13 +488,19 @@
                         <td>KSH ${(e.budget || 0).toFixed(2)}</td>
                         <td>KSH ${(e.serviceFee || 0).toFixed(2)}</td>
                         <td><span class="status-badge status-${e.status}">${e.status.toUpperCase()}</span></td>
-                        <td><button class="action-btn view" onclick="viewErrand('${doc.id}')">View</button></td>
+                        <td>
+                            <button class="action-btn view" onclick="viewErrand('${doc.id}')">View</button>
+                        </td>
                     </tr>
                 `;
             });
+        } catch (error) {
+            console.error('Load errands error:', error);
         }
+    }
 
-        async function loadTransactions() {
+    async function loadTransactions() {
+        try {
             const snapshot = await db.collection('transactions').orderBy('createdAt', 'desc').limit(50).get();
             const tbody = document.getElementById('transactionsBody');
             tbody.innerHTML = '';
@@ -1791,20 +512,29 @@
                 tbody.innerHTML += `
                     <tr>
                         <td>${date}</td>
-                        <td>${t.type.replace('_', ' ').toUpperCase()}</td>
+                        <td>${t.type ? t.type.replace('_', ' ').toUpperCase() : 'Unknown'}</td>
                         <td>${t.userId?.slice(-6) || 'Unknown'}</td>
                         <td>KSH ${(t.amount || 0).toFixed(2)}</td>
                         <td>KSH ${(t.commission || 0).toFixed(2)}</td>
-                        <td><span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span></td>
+                        <td><span class="status-badge status-${t.status || 'pending'}">${(t.status || 'pending').toUpperCase()}</span></td>
                     </tr>
                 `;
             });
+        } catch (error) {
+            console.error('Load transactions error:', error);
         }
+    }
 
-        async function loadVerifications() {
+    async function loadVerifications() {
+        try {
             const snapshot = await db.collection('verifications').orderBy('submittedAt', 'desc').get();
             const tbody = document.getElementById('verificationsBody');
             tbody.innerHTML = '';
+            
+            if (snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No verifications found</td></tr>';
+                return;
+            }
             
             snapshot.forEach(doc => {
                 const v = doc.data();
@@ -1815,23 +545,34 @@
                         <td>${v.runnerName || 'Unknown'}</td>
                         <td>${date}</td>
                         <td>${v.documents ? '✅ Uploaded' : '❌ Missing'}</td>
-                        <td><span class="status-badge status-${v.status}">${v.status.toUpperCase()}</span></td>
+                        <td><span class="status-badge status-${v.status || 'pending'}">${(v.status || 'pending').toUpperCase()}</span></td>
                         <td>
-                            <button class="action-btn view" onclick="viewVerification('${doc.id}')">View</button>
-                            ${v.status === 'pending' ? `
-                                <button class="action-btn approve" onclick="approveVerification('${doc.id}')">Approve</button>
-                                <button class="action-btn reject" onclick="rejectVerification('${doc.id}')">Reject</button>
-                            ` : ''}
+                            <div class="action-buttons">
+                                <button class="action-btn view" onclick="viewVerification('${doc.id}')">View</button>
+                                ${v.status === 'pending' ? `
+                                    <button class="action-btn approve" onclick="approveVerification('${doc.id}')">Approve</button>
+                                    <button class="action-btn reject" onclick="rejectVerification('${doc.id}')">Reject</button>
+                                ` : ''}
+                            </div>
                         </td>
                     </tr>
                 `;
             });
+        } catch (error) {
+            console.error('Load verifications error:', error);
         }
+    }
 
-        async function loadSupportTickets() {
+    async function loadSupportTickets() {
+        try {
             const snapshot = await db.collection('support').orderBy('createdAt', 'desc').get();
             const ticketsList = document.getElementById('ticketsList');
             ticketsList.innerHTML = '';
+            
+            if (snapshot.empty) {
+                ticketsList.innerHTML = '<div style="text-align: center; padding: 40px;">No support tickets found</div>';
+                return;
+            }
             
             snapshot.forEach(doc => {
                 const t = doc.data();
@@ -1841,7 +582,7 @@
                     <div class="dispute-card" data-ticket-id="${doc.id}">
                         <div class="dispute-header">
                             <span class="dispute-id">Ticket #${doc.id.slice(-6)}</span>
-                            <span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span>
+                            <span class="status-badge status-${t.status || 'open'}">${(t.status || 'open').toUpperCase()}</span>
                         </div>
                         <div><strong>From:</strong> ${t.userName || 'Unknown'}</div>
                         <div><strong>Subject:</strong> ${t.subject || 'No subject'}</div>
@@ -1858,9 +599,13 @@
                     </div>
                 `;
             });
+        } catch (error) {
+            console.error('Load tickets error:', error);
         }
+    }
 
-        async function updateBadges() {
+    async function updateBadges() {
+        try {
             const pendingVerifications = await db.collection('verifications').where('status', '==', 'pending').get();
             document.getElementById('pendingVerificationsBadge').textContent = pendingVerifications.size;
             
@@ -1873,13 +618,17 @@
             const incompleteUsers = await db.collection('users').where('profileComplete', '==', false).get();
             const incompleteRunners = await db.collection('runners').where('profileComplete', '==', false).get();
             document.getElementById('pendingUsersBadge').textContent = incompleteUsers.size + incompleteRunners.size;
+        } catch (error) {
+            console.error('Update badges error:', error);
         }
+    }
 
-        // Chart Functions
-        function initCharts() {
+    // Chart Functions
+    function initCharts() {
+        try {
             // Activity Chart
             const activityCtx = document.getElementById('activityChart')?.getContext('2d');
-            if (activityCtx) {
+            if (activityCtx && !charts.activity) {
                 charts.activity = new Chart(activityCtx, {
                     type: 'line',
                     data: {
@@ -1892,28 +641,39 @@
                             tension: 0.4,
                             fill: true
                         }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
                     }
                 });
             }
             
             // User Chart
             const userCtx = document.getElementById('userChart')?.getContext('2d');
-            if (userCtx) {
+            if (userCtx && !charts.user) {
+                const usersCount = parseInt(document.getElementById('totalUsers').textContent) || 100;
+                const runnersCount = parseInt(document.getElementById('activeRunners').textContent) || 35;
+                
                 charts.user = new Chart(userCtx, {
                     type: 'doughnut',
                     data: {
                         labels: ['Clients', 'Runners'],
                         datasets: [{
-                            data: [65, 35],
+                            data: [usersCount - runnersCount, runnersCount],
                             backgroundColor: ['#667eea', '#10b981']
                         }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
                     }
                 });
             }
             
             // Revenue Chart
             const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
-            if (revenueCtx) {
+            if (revenueCtx && !charts.revenue) {
                 charts.revenue = new Chart(revenueCtx, {
                     type: 'bar',
                     data: {
@@ -1929,7 +689,7 @@
             
             // Growth Chart
             const growthCtx = document.getElementById('growthChart')?.getContext('2d');
-            if (growthCtx) {
+            if (growthCtx && !charts.growth) {
                 charts.growth = new Chart(growthCtx, {
                     type: 'line',
                     data: {
@@ -1942,91 +702,180 @@
                     }
                 });
             }
+        } catch (error) {
+            console.error('Chart initialization error:', error);
         }
+    }
 
-        // Filter Functions
-        function filterUsers() {
-            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-            document.querySelectorAll('#usersTableBody tr').forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
-            });
-        }
+    // Filter Functions
+    function filterUsers() {
+        const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+        document.querySelectorAll('#usersTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+        });
+    }
 
-        function filterUsersByType(type) {
-            document.querySelectorAll('#usersTableBody tr').forEach(row => {
-                if (type === 'all') row.style.display = '';
-                else row.style.display = row.dataset.userType === type ? '' : 'none';
-            });
-        }
+    function filterUsersByType(type) {
+        document.querySelectorAll('#usersTableBody tr').forEach(row => {
+            if (type === 'all') row.style.display = '';
+            else row.style.display = row.dataset.userType === type ? '' : 'none';
+        });
+    }
 
-        function filterErrands() {
-            const searchTerm = document.getElementById('errandSearch').value.toLowerCase();
-            document.querySelectorAll('#errandsTableBody tr').forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
-            });
-        }
+    function filterErrands() {
+        const searchTerm = document.getElementById('errandSearch').value.toLowerCase();
+        document.querySelectorAll('#errandsTableBody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+        });
+    }
 
-        // User Actions
-        async function viewUser(userId, type) {
-            selectedUserId = userId;
-            selectedUserType = type;
-            
+    function filterErrandsByStatus(status) {
+        document.querySelectorAll('#errandsTableBody tr').forEach(row => {
+            if (status === 'all') {
+                row.style.display = '';
+            } else {
+                const statusCell = row.querySelector('td:nth-child(7) span');
+                if (statusCell) {
+                    const rowStatus = statusCell.textContent.toLowerCase();
+                    row.style.display = rowStatus === status ? '' : 'none';
+                }
+            }
+        });
+    }
+
+    function filterVerifications(status) {
+        document.querySelectorAll('#verificationsBody tr').forEach(row => {
+            if (status === 'all') {
+                row.style.display = '';
+            } else {
+                const statusCell = row.querySelector('td:nth-child(4) span');
+                if (statusCell) {
+                    const rowStatus = statusCell.textContent.toLowerCase();
+                    row.style.display = rowStatus === status ? '' : 'none';
+                }
+            }
+        });
+    }
+
+    function filterDisputes(status) {
+        document.querySelectorAll('#disputesList .dispute-card').forEach(card => {
+            if (status === 'all') {
+                card.style.display = '';
+            } else {
+                const statusSpan = card.querySelector('.status-badge');
+                if (statusSpan) {
+                    const cardStatus = statusSpan.textContent.toLowerCase();
+                    card.style.display = cardStatus.includes(status) ? '' : 'none';
+                }
+            }
+        });
+    }
+
+    function filterTickets(status) {
+        document.querySelectorAll('#ticketsList .dispute-card').forEach(card => {
+            if (status === 'all') {
+                card.style.display = '';
+            } else {
+                const statusSpan = card.querySelector('.status-badge');
+                if (statusSpan) {
+                    const cardStatus = statusSpan.textContent.toLowerCase();
+                    card.style.display = cardStatus.includes(status) ? '' : 'none';
+                }
+            }
+        });
+    }
+
+    // User Actions
+    async function viewUser(userId, type) {
+        selectedUserId = userId;
+        selectedUserType = type;
+        
+        try {
             const collection = type === 'runner' ? 'runners' : 'users';
             const doc = await db.collection(collection).doc(userId).get();
+            
+            if (!doc.exists) {
+                showToast('User not found', 'error');
+                return;
+            }
+            
             const user = doc.data();
             
             document.getElementById('userModalBody').innerHTML = `
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=100&background=667eea&color=fff`}" style="width: 100px; height: 100px; border-radius: 50%;">
-                    <h3>${user.name || 'Unknown'}</h3>
+                    <img src="${user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&size=100&background=667eea&color=fff`}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                    <h3 style="margin-top: 10px;">${user.name || 'Unknown'}</h3>
                     <p>${type === 'runner' ? '🏃 Runner' : '👤 Client'}</p>
                 </div>
-                <div><strong>Email:</strong> ${user.email || 'Not provided'}</div>
-                <div><strong>Phone:</strong> ${user.phone || 'Not provided'}</div>
-                <div><strong>Joined:</strong> ${user.createdAt ? user.createdAt.toDate().toLocaleString() : 'Unknown'}</div>
-                <div><strong>Wallet Balance:</strong> KSH ${(user.walletBalance || 0).toFixed(2)}</div>
-                <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
+                <div style="display: grid; gap: 10px;">
+                    <div><strong>Email:</strong> ${user.email || 'Not provided'}</div>
+                    <div><strong>Phone:</strong> ${user.phone || 'Not provided'}</div>
+                    <div><strong>Joined:</strong> ${user.createdAt ? user.createdAt.toDate().toLocaleString() : 'Unknown'}</div>
+                    <div><strong>Wallet Balance:</strong> KSH ${(user.walletBalance || 0).toFixed(2)}</div>
+                    ${type === 'runner' ? `
+                        <div><strong>Total Jobs:</strong> ${user.totalJobs || 0}</div>
+                        <div><strong>Total Earnings:</strong> KSH ${(user.totalEarnings || 0).toFixed(2)}</div>
+                        <div><strong>Rating:</strong> ⭐ ${user.rating || '0.0'}</div>
+                    ` : `
+                        <div><strong>Total Errands:</strong> ${user.totalErrands || 0}</div>
+                        <div><strong>Total Spent:</strong> KSH ${(user.totalSpent || 0).toFixed(2)}</div>
+                    `}
+                    <div><strong>Status:</strong> ${user.banned ? '🚫 Banned' : '✅ Active'}</div>
+                </div>
             `;
             
             document.getElementById('banUserBtn').textContent = user.banned ? 'Unban User' : 'Ban User';
             showModal('userModal');
+        } catch (error) {
+            console.error('View user error:', error);
+            showToast('Error loading user details', 'error');
         }
+    }
 
-        async function banUser() {
-            if (!selectedUserId) return;
+    async function banUser() {
+        if (!selectedUserId || !selectedUserType) return;
+        
+        const action = document.getElementById('banUserBtn').textContent === 'Unban User' ? 'unban' : 'ban';
+        if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+        
+        showLoading();
+        
+        try {
+            const collection = selectedUserType === 'runner' ? 'runners' : 'users';
+            await db.collection(collection).doc(selectedUserId).update({
+                banned: action === 'ban',
+                ...(action === 'ban' ? { bannedAt: firebase.firestore.FieldValue.serverTimestamp() } : {})
+            });
             
-            const action = document.getElementById('banUserBtn').textContent === 'Unban User' ? 'unban' : 'ban';
-            if (!confirm(`Are you sure you want to ${action} this user?`)) return;
-            
-            showLoading();
-            
-            try {
-                const collection = selectedUserType === 'runner' ? 'runners' : 'users';
-                await db.collection(collection).doc(selectedUserId).update({
-                    banned: action === 'ban'
-                });
-                
-                showToast(`User ${action}ned successfully`, 'success');
-                closeModal('userModal');
-                loadAllUsers();
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
+            showToast(`User ${action}ned successfully`, 'success');
+            closeModal('userModal');
+            loadAllUsers();
+        } catch (error) {
+            console.error('Ban user error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        async function unbanUser(userId, type) {
-            selectedUserId = userId;
-            selectedUserType = type;
-            await banUser();
-        }
+    async function unbanUser(userId, type) {
+        selectedUserId = userId;
+        selectedUserType = type;
+        await banUser();
+    }
 
-        // Verification Actions
-        async function viewVerification(verificationId) {
-            selectedVerificationId = verificationId;
-            
+    // Verification Actions
+    async function viewVerification(verificationId) {
+        selectedVerificationId = verificationId;
+        
+        try {
             const doc = await db.collection('verifications').doc(verificationId).get();
+            
+            if (!doc.exists) {
+                showToast('Verification not found', 'error');
+                return;
+            }
+            
             const v = doc.data();
             
             let docsHtml = '';
@@ -2034,8 +883,8 @@
                 for (let [key, url] of Object.entries(v.documents)) {
                     docsHtml += `
                         <div class="verification-doc">
-                            <strong>${key}:</strong>
-                            <img src="${url}" onclick="window.open('${url}')">
+                            <strong>${key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong>
+                            <img src="${url}" style="max-width: 100%; margin-top: 10px; border-radius: var(--radius); cursor: pointer;" onclick="window.open('${url}')">
                         </div>
                     `;
                 }
@@ -2043,333 +892,433 @@
             
             document.getElementById('verificationModalBody').innerHTML = `
                 <h3>Runner: ${v.runnerName || 'Unknown'}</h3>
-                <p>Submitted: ${v.submittedAt ? v.submittedAt.toDate().toLocaleString() : 'Unknown'}</p>
-                ${docsHtml}
+                <p><strong>Email:</strong> ${v.runnerEmail || 'Unknown'}</p>
+                <p><strong>Submitted:</strong> ${v.submittedAt ? v.submittedAt.toDate().toLocaleString() : 'Unknown'}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-${v.status || 'pending'}">${(v.status || 'pending').toUpperCase()}</span></p>
+                ${v.rejectionReason ? `<p><strong>Rejection Reason:</strong> ${v.rejectionReason}</p>` : ''}
+                <hr style="margin: 20px 0;">
+                ${docsHtml || '<p>No documents uploaded</p>'}
             `;
             
             showModal('verificationModal');
+        } catch (error) {
+            console.error('View verification error:', error);
+            showToast('Error loading verification', 'error');
         }
+    }
 
-        async function approveVerification(verificationId) {
-            const id = verificationId || selectedVerificationId;
-            if (!id) return;
+    async function approveVerification(verificationId) {
+        const id = verificationId || selectedVerificationId;
+        if (!id) return;
+        
+        showLoading();
+        
+        try {
+            const verificationDoc = await db.collection('verifications').doc(id).get();
             
-            showLoading();
+            if (!verificationDoc.exists) {
+                showToast('Verification not found', 'error');
+                hideLoading();
+                return;
+            }
             
-            try {
-                const verificationDoc = await db.collection('verifications').doc(id).get();
-                const verification = verificationDoc.data();
-                
-                await db.collection('verifications').doc(id).update({
-                    status: 'approved',
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
+            const verification = verificationDoc.data();
+            
+            await db.collection('verifications').doc(id).update({
+                status: 'approved',
+                reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                reviewedBy: currentAdmin?.uid || 'admin'
+            });
+            
+            if (verification.runnerId) {
                 await db.collection('runners').doc(verification.runnerId).update({
-                    verificationStatus: 'verified'
+                    verificationStatus: 'verified',
+                    verifiedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                
-                showToast('Verification approved!', 'success');
-                closeModal('verificationModal');
-                loadDashboardData();
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
             }
+            
+            showToast('Verification approved!', 'success');
+            closeModal('verificationModal');
+            loadDashboardData();
+        } catch (error) {
+            console.error('Approve verification error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        async function rejectVerification(verificationId) {
-            const id = verificationId || selectedVerificationId;
-            if (!id) return;
+    async function rejectVerification(verificationId) {
+        const id = verificationId || selectedVerificationId;
+        if (!id) return;
+        
+        const reason = prompt('Please provide a reason for rejection:');
+        if (!reason) return;
+        
+        showLoading();
+        
+        try {
+            await db.collection('verifications').doc(id).update({
+                status: 'rejected',
+                rejectionReason: reason,
+                reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                reviewedBy: currentAdmin?.uid || 'admin'
+            });
             
-            const reason = prompt('Reason for rejection:');
-            if (!reason) return;
-            
-            showLoading();
-            
-            try {
-                await db.collection('verifications').doc(id).update({
-                    status: 'rejected',
-                    rejectionReason: reason,
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showToast('Verification rejected', 'success');
-                closeModal('verificationModal');
-                loadDashboardData();
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
+            showToast('Verification rejected', 'success');
+            closeModal('verificationModal');
+            loadDashboardData();
+        } catch (error) {
+            console.error('Reject verification error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        // Dispute Actions
-        async function viewDispute(disputeId) {
-            selectedDisputeId = disputeId;
-            
+    // Dispute Actions
+    async function viewDispute(disputeId) {
+        selectedDisputeId = disputeId;
+        
+        try {
             const doc = await db.collection('disputes').doc(disputeId).get();
+            
+            if (!doc.exists) {
+                showToast('Dispute not found', 'error');
+                return;
+            }
+            
             const d = doc.data();
             
             document.getElementById('disputeModalBody').innerHTML = `
                 <div class="dispute-header">
                     <span class="dispute-id">Dispute #${disputeId.slice(-6)}</span>
-                    <span class="status-badge status-${d.status}">${d.status.toUpperCase()}</span>
+                    <span class="status-badge status-${d.status || 'open'}">${(d.status || 'open').toUpperCase()}</span>
                 </div>
-                <div><strong>Client:</strong> ${d.clientName || 'Unknown'}</div>
-                <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'}</div>
-                <div><strong>Amount:</strong> KSH ${(d.amount || 0).toFixed(2)}</div>
+                <div style="margin: 15px 0;">
+                    <div><strong>Client:</strong> ${d.clientName || 'Unknown'}</div>
+                    <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'}</div>
+                    <div><strong>Errand ID:</strong> #${d.errandId?.slice(-6) || 'Unknown'}</div>
+                    <div><strong>Amount in Escrow:</strong> KSH ${(d.amount || 0).toFixed(2)}</div>
+                </div>
                 <h4>Client's Claim:</h4>
-                <div class="dispute-message">${d.clientMessage || 'No message'}</div>
+                <div class="dispute-message">${d.clientMessage || 'No message provided'}</div>
                 <h4>Runner's Response:</h4>
-                <div class="dispute-message">${d.runnerMessage || 'No response'}</div>
+                <div class="dispute-message">${d.runnerMessage || 'No response yet'}</div>
+                ${d.evidence ? `
+                    <h4>Evidence:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                        ${Array.isArray(d.evidence) ? d.evidence.map(url => `
+                            <img src="${url}" style="width: 100%; height: 100px; object-fit: cover; border-radius: var(--radius); cursor: pointer;" onclick="window.open('${url}')">
+                        `).join('') : ''}
+                    </div>
+                ` : ''}
             `;
             
             showModal('disputeModal');
+        } catch (error) {
+            console.error('View dispute error:', error);
+            showToast('Error loading dispute', 'error');
         }
+    }
 
-        async function resolveDispute(ruling) {
-            if (!selectedDisputeId) return;
+    async function resolveDispute(ruling) {
+        if (!selectedDisputeId) return;
+        
+        if (!confirm(`Resolve dispute in favor of the ${ruling}? This action cannot be undone.`)) return;
+        
+        showLoading();
+        
+        try {
+            const disputeDoc = await db.collection('disputes').doc(selectedDisputeId).get();
             
-            showLoading();
-            
-            try {
-                await db.collection('disputes').doc(selectedDisputeId).update({
-                    status: 'resolved',
-                    ruling: ruling,
-                    resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showToast(`Dispute resolved in favor of ${ruling}`, 'success');
-                closeModal('disputeModal');
-                loadDashboardData();
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
+            if (!disputeDoc.exists) {
+                showToast('Dispute not found', 'error');
                 hideLoading();
+                return;
             }
-        }
-
-        async function escalateDispute() {
-            if (!selectedDisputeId) return;
             
-            showLoading();
+            const dispute = disputeDoc.data();
             
-            try {
-                await db.collection('disputes').doc(selectedDisputeId).update({
-                    status: 'escalated'
+            await db.collection('disputes').doc(selectedDisputeId).update({
+                status: 'resolved',
+                ruling: ruling,
+                resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                resolvedBy: currentAdmin?.uid || 'admin'
+            });
+            
+            // Update errand status
+            if (dispute.errandId) {
+                await db.collection('errands').doc(dispute.errandId).update({
+                    status: 'completed',
+                    disputeRuling: ruling
                 });
-                
-                showToast('Dispute escalated', 'success');
-                closeModal('disputeModal');
-                loadDashboardData();
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
             }
-        }
-
-        // Ticket Actions
-        async function viewTicket(ticketId) {
-            selectedTicketId = ticketId;
             
+            showToast(`Dispute resolved in favor of ${ruling}`, 'success');
+            closeModal('disputeModal');
+            loadDashboardData();
+        } catch (error) {
+            console.error('Resolve dispute error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function escalateDispute() {
+        if (!selectedDisputeId) return;
+        
+        showLoading();
+        
+        try {
+            await db.collection('disputes').doc(selectedDisputeId).update({
+                status: 'escalated',
+                escalatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            showToast('Dispute escalated', 'success');
+            closeModal('disputeModal');
+            loadDashboardData();
+        } catch (error) {
+            console.error('Escalate dispute error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Ticket Actions
+    async function viewTicket(ticketId) {
+        selectedTicketId = ticketId;
+        
+        try {
             const doc = await db.collection('support').doc(ticketId).get();
+            
+            if (!doc.exists) {
+                showToast('Ticket not found', 'error');
+                return;
+            }
+            
             const t = doc.data();
             
             document.getElementById('ticketModalBody').innerHTML = `
                 <h3>${t.subject || 'Support Ticket'}</h3>
-                <p><strong>From:</strong> ${t.userName || 'Unknown'}</p>
+                <p><strong>From:</strong> ${t.userName || 'Unknown'} (${t.userType || 'User'})</p>
                 <p><strong>Date:</strong> ${t.createdAt ? t.createdAt.toDate().toLocaleString() : 'Unknown'}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-${t.status || 'open'}">${(t.status || 'open').toUpperCase()}</span></p>
                 <div class="dispute-message">${t.message || 'No message'}</div>
-                <div class="form-group">
-                    <label class="form-label">Response:</label>
-                    <textarea id="ticketResponse" class="form-control" rows="4"></textarea>
+                ${t.response ? `
+                    <h4>Previous Response:</h4>
+                    <div class="dispute-message" style="background-color: #e3f2fd;">
+                        ${t.response}
+                    </div>
+                    <p style="font-size: 12px; color: var(--gray);">${t.respondedAt ? t.respondedAt.toDate().toLocaleString() : ''}</p>
+                ` : ''}
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="form-label">Your Response:</label>
+                    <textarea id="ticketResponse" class="form-control" rows="4" placeholder="Type your response..."></textarea>
                 </div>
             `;
             
             showModal('ticketModal');
+        } catch (error) {
+            console.error('View ticket error:', error);
+            showToast('Error loading ticket', 'error');
         }
+    }
 
-        async function respondToTicket() {
-            const response = document.getElementById('ticketResponse')?.value;
-            if (!response) return;
-            
-            showLoading();
-            
-            try {
-                await db.collection('support').doc(selectedTicketId).update({
-                    response: response,
-                    respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'in-progress'
-                });
-                
-                showToast('Response sent', 'success');
-                closeModal('ticketModal');
-                loadSupportTickets();
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
+    async function respondToTicket() {
+        const response = document.getElementById('ticketResponse')?.value;
+        if (!response) {
+            showToast('Please enter a response', 'warning');
+            return;
         }
-
-        async function markTicketResolved(ticketId) {
-            const id = ticketId || selectedTicketId;
-            if (!id) return;
-            
-            showLoading();
-            
-            try {
-                await db.collection('support').doc(id).update({
-                    status: 'resolved'
-                });
-                
-                showToast('Ticket resolved', 'success');
-                closeModal('ticketModal');
-                loadSupportTickets();
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Settings Functions
-        async function saveCommissionSettings() {
-            const settings = {
-                defaultCommission: parseFloat(document.getElementById('defaultCommission').value),
-                deliveryCommission: parseFloat(document.getElementById('deliveryCommission').value),
-                shoppingCommission: parseFloat(document.getElementById('shoppingCommission').value),
-                minCommission: parseFloat(document.getElementById('minCommission').value),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            showLoading();
-            
-            try {
-                await db.collection('settings').doc('commission').set(settings, { merge: true });
-                showToast('Settings saved', 'success');
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        async function saveSystemSettings() {
-            const settings = {
-                minBudget: parseFloat(document.getElementById('minBudget').value),
-                newUserBonus: parseFloat(document.getElementById('newUserBonus').value),
-                disputeTime: parseInt(document.getElementById('disputeTime').value)
-            };
-            
-            showLoading();
-            
-            try {
-                await db.collection('settings').doc('system').set(settings, { merge: true });
-                showToast('Settings saved', 'success');
-            } catch (error) {
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Utility Functions
-        function updateDateTime() {
-            document.getElementById('currentDateTime').textContent = new Date().toLocaleString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
+        
+        showLoading();
+        
+        try {
+            await db.collection('support').doc(selectedTicketId).update({
+                response: response,
+                respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                respondedBy: currentAdmin?.uid || 'admin',
+                status: 'in-progress'
             });
+            
+            showToast('Response sent successfully', 'success');
+            closeModal('ticketModal');
+            loadSupportTickets();
+        } catch (error) {
+            console.error('Respond to ticket error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        function showPage(pageId) {
-            pages.forEach(page => page.classList.remove('active'));
-            document.getElementById(`${pageId}Page`).classList.add('active');
+    async function markTicketResolved(ticketId) {
+        const id = ticketId || selectedTicketId;
+        if (!id) return;
+        
+        showLoading();
+        
+        try {
+            await db.collection('support').doc(id).update({
+                status: 'resolved',
+                resolvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                resolvedBy: currentAdmin?.uid || 'admin'
+            });
+            
+            showToast('Ticket marked as resolved', 'success');
+            closeModal('ticketModal');
+            loadSupportTickets();
+        } catch (error) {
+            console.error('Resolve ticket error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        function showModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
+    // Settings Functions
+    async function saveCommissionSettings() {
+        const settings = {
+            defaultCommission: parseFloat(document.getElementById('defaultCommission').value),
+            deliveryCommission: parseFloat(document.getElementById('deliveryCommission').value),
+            shoppingCommission: parseFloat(document.getElementById('shoppingCommission').value),
+            minCommission: parseFloat(document.getElementById('minCommission').value),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy: currentAdmin?.uid || 'admin'
+        };
+        
+        showLoading();
+        
+        try {
+            await db.collection('settings').doc('commission').set(settings, { merge: true });
+            showToast('Commission settings saved', 'success');
+        } catch (error) {
+            console.error('Save commission error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+    async function saveSystemSettings() {
+        const settings = {
+            minBudget: parseFloat(document.getElementById('minBudget').value),
+            newUserBonus: parseFloat(document.getElementById('newUserBonus').value),
+            disputeTime: parseInt(document.getElementById('disputeTime').value),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy: currentAdmin?.uid || 'admin'
+        };
+        
+        showLoading();
+        
+        try {
+            await db.collection('settings').doc('system').set(settings, { merge: true });
+            showToast('System settings saved', 'success');
+        } catch (error) {
+            console.error('Save system settings error:', error);
+            showToast('Error: ' + error.message, 'error');
+        } finally {
+            hideLoading();
         }
+    }
 
-        function showToast(message, type = 'info') {
-            toast.className = `toast ${type}`;
-            document.getElementById('toastMessage').textContent = message;
-            document.getElementById('toastIcon').className = type === 'success' ? 'fas fa-check-circle' : 
-                                                             type === 'error' ? 'fas fa-exclamation-circle' : 
-                                                             'fas fa-info-circle';
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+    // Utility Functions
+    function updateDateTime() {
+        const now = new Date();
+        document.getElementById('currentDateTime').textContent = now.toLocaleString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+
+    function showPage(pageId) {
+        pages.forEach(page => page.classList.remove('active'));
+        const pageElement = document.getElementById(`${pageId}Page`);
+        if (pageElement) {
+            pageElement.classList.add('active');
         }
+    }
 
-        function showLoading() {
-            loadingSpinner.style.display = 'flex';
-        }
+    function showModal(modalId) {
+        document.getElementById(modalId).classList.add('active');
+    }
 
-        function hideLoading() {
-            loadingSpinner.style.display = 'none';
-        }
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
 
-        function showApp() {
-            loginPage.style.display = 'none';
-            adminDashboard.style.display = 'flex';
-            document.getElementById('adminName').textContent = adminData?.name || 'Admin';
-        }
+    function showToast(message, type = 'info') {
+        toast.className = `toast ${type}`;
+        document.getElementById('toastMessage').textContent = message;
+        
+        const icon = document.getElementById('toastIcon');
+        if (type === 'success') icon.className = 'fas fa-check-circle';
+        else if (type === 'error') icon.className = 'fas fa-exclamation-circle';
+        else if (type === 'warning') icon.className = 'fas fa-exclamation-triangle';
+        else icon.className = 'fas fa-info-circle';
+        
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 
-        function showLogin() {
-            loginPage.style.display = 'flex';
-            adminDashboard.style.display = 'none';
-        }
+    function showLoading() {
+        loadingSpinner.style.display = 'flex';
+    }
 
-        function showLoginError(message) {
-            const errorDiv = document.getElementById('loginError');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
+    function hideLoading() {
+        loadingSpinner.style.display = 'none';
+    }
 
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func(...args), wait);
-            };
-        }
+    function showApp() {
+        loginPage.style.display = 'none';
+        adminDashboard.style.display = 'flex';
+        document.getElementById('adminName').textContent = adminData?.name || 'Admin';
+    }
 
-        // View Errand placeholder
-        function viewErrand(errandId) {
-            showToast('View errand details - Coming soon', 'info');
-        }
+    function showLogin() {
+        loginPage.style.display = 'flex';
+        adminDashboard.style.display = 'none';
+    }
 
-        // Global functions
-        window.viewUser = viewUser;
-        window.banUser = banUser;
-        window.unbanUser = unbanUser;
-        window.viewVerification = viewVerification;
-        window.approveVerification = approveVerification;
-        window.rejectVerification = rejectVerification;
-        window.viewDispute = viewDispute;
-        window.resolveDispute = resolveDispute;
-        window.escalateDispute = escalateDispute;
-        window.viewErrand = viewErrand;
-        window.viewTicket = viewTicket;
-        window.respondToTicket = respondToTicket;
-        window.markTicketResolved = markTicketResolved;
-        window.saveCommissionSettings = saveCommissionSettings;
-        window.saveSystemSettings = saveSystemSettings;
-        window.showPage = showPage;
-        window.showModal = showModal;
-        window.closeModal = closeModal;
-    </script>
-</body>
-</html>
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
+
+    // View Errand placeholder
+    function viewErrand(errandId) {
+        showToast('View errand details - Coming soon', 'info');
+    }
+
+    // Global functions
+    window.viewUser = viewUser;
+    window.banUser = banUser;
+    window.unbanUser = unbanUser;
+    window.viewVerification = viewVerification;
+    window.approveVerification = approveVerification;
+    window.rejectVerification = rejectVerification;
+    window.viewDispute = viewDispute;
+    window.resolveDispute = resolveDispute;
+    window.escalateDispute = escalateDispute;
+    window.viewErrand = viewErrand;
+    window.viewTicket = viewTicket;
+    window.respondToTicket = respondToTicket;
+    window.markTicketResolved = markTicketResolved;
+    window.saveCommissionSettings = saveCommissionSettings;
+    window.saveSystemSettings = saveSystemSettings;
+    window.showPage = showPage;
+    window.showModal = showModal;
+    window.closeModal = closeModal;
+</script>
