@@ -1,0 +1,11 @@
+{
+  "name": "errands-admin-pwa",
+  "version": "1.0.0",
+  "description": "ERRANDS Admin PWA",
+  "scripts": {
+    "generate-icons": "node generate-icons.js"
+  },
+  "devDependencies": {
+    "canvas": "^2.11.0"
+  }
+}
