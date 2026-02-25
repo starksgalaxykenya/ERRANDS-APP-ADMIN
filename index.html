@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ERRANDS - Admin Dashboard</title>
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ERRANDS Admin">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
     
@@ -778,6 +786,101 @@
             display: block;
         }
 
+        /* PWA Specific Styles */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--danger);
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 12px;
+            z-index: 9999;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .offline .offline-indicator {
+            transform: translateY(0);
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: none;
+            z-index: 1000;
+            border-left: 4px solid var(--primary);
+            animation: slideUp 0.3s ease;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover {
+            background: var(--light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0ca678;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .sidebar {
@@ -836,9 +939,42 @@
                 overflow-x: auto;
             }
         }
+
+        /* Standalone mode adjustments */
+        @media all and (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+            }
+            
+            .header {
+                margin-top: env(safe-area-inset-top);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator">
+        <i class="fas fa-wifi-slash"></i> You are offline. Working in limited mode.
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="installPrompt" class="install-prompt">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-running" style="color: white; font-size: 24px;"></i>
+            </div>
+            <div style="flex: 1;">
+                <h4 style="margin-bottom: 5px;">Install ERRANDS Admin</h4>
+                <p style="font-size: 12px; color: var(--gray);">Install as app for easy access</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn btn-primary" style="flex: 1;" onclick="installPWA()">Install</button>
+            <button class="btn btn-outline" style="flex: 1;" onclick="dismissInstallPrompt()">Later</button>
+        </div>
+    </div>
+
     <!-- Login Page -->
     <div id="loginPage" class="login-container">
         <div class="login-left">
@@ -1237,7 +1373,7 @@
                 </div>
             </div>
 
-                       <!-- Disputes Page -->
+            <!-- Disputes Page -->
             <div id="disputesPage" class="page">
                 <div class="table-container">
                     <div class="table-header">
@@ -1344,6 +1480,7 @@
                     <div id="disputesList"></div>
                 </div>
             </div>
+            
             <!-- Payments Page -->
             <div id="paymentsPage" class="page">
                 <div class="stats-grid">
@@ -1761,6 +1898,7 @@
     let allRunners = [];
     let allErrands = [];
     let allTransactions = [];
+    let deferredPrompt;
 
     // DOM Elements
     const loginPage = document.getElementById('loginPage');
@@ -1769,6 +1907,7 @@
     const navLinks = document.querySelectorAll('.nav-link');
     const toast = document.getElementById('adminToast');
     const loadingSpinner = document.getElementById('loadingSpinner');
+    const installPrompt = document.getElementById('installPrompt');
 
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
@@ -1805,7 +1944,214 @@
                 showLogin();
             }
         });
+
+        // Register Service Worker
+        registerServiceWorker();
+        
+        // Handle online/offline events
+        handleConnectivityChanges();
+        
+        // PWA installation prompt
+        setupInstallPrompt();
+        
+        // Check if app is installed
+        checkIfStandalone();
     });
+
+    // PWA Functions
+    function registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered: ', registration);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('ServiceWorker update found!');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available
+                                    if (confirm('New version available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    }
+
+    function handleConnectivityChanges() {
+        window.addEventListener('online', () => {
+            console.log('Back online!');
+            document.body.classList.remove('offline');
+            showToast('Connection restored', 'success');
+            
+            // Attempt to sync pending actions
+            syncPendingActions();
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('You are offline');
+            document.body.classList.add('offline');
+            showToast('You are offline. Some features may be limited.', 'warning');
+        });
+        
+        // Initial check
+        if (!navigator.onLine) {
+            document.body.classList.add('offline');
+        }
+    }
+
+    function setupInstallPrompt() {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show install prompt after 2 seconds
+            setTimeout(() => {
+                installPrompt.classList.add('show');
+            }, 2000);
+        });
+    }
+
+    window.installPWA = async () => {
+        if (!deferredPrompt) return;
+        
+        // Show the install prompt
+        deferredPrompt.prompt();
+        
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        
+        // We no longer need the prompt
+        deferredPrompt = null;
+        
+        // Hide our custom prompt
+        installPrompt.classList.remove('show');
+    };
+
+    window.dismissInstallPrompt = () => {
+        installPrompt.classList.remove('show');
+    };
+
+    function checkIfStandalone() {
+        // Detect if app is installed (standalone mode)
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('App is running in standalone mode');
+            document.body.classList.add('standalone');
+        }
+        
+        // Handle app installation on iOS
+        if (window.navigator.standalone) {
+            document.body.classList.add('ios-standalone');
+        }
+    }
+
+    // IndexedDB for offline actions
+    async function openIndexedDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('ErrandsAdminDB', 1);
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+            
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains('pendingActions')) {
+                    db.createObjectStore('pendingActions', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+        });
+    }
+
+    async function addToPendingActions(action) {
+        if (!navigator.onLine) {
+            try {
+                const db = await openIndexedDB();
+                const transaction = db.transaction(['pendingActions'], 'readwrite');
+                const store = transaction.objectStore('pendingActions');
+                store.add({
+                    ...action,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Register for background sync
+                if ('serviceWorker' in navigator && 'SyncManager' in window) {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.sync.register('sync-pending-actions');
+                }
+                
+                showToast('Action saved. Will sync when online.', 'info');
+                return true;
+            } catch (error) {
+                console.error('Failed to save pending action:', error);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    async function syncPendingActions() {
+        try {
+            const db = await openIndexedDB();
+            const transaction = db.transaction(['pendingActions'], 'readonly');
+            const store = transaction.objectStore('pendingActions');
+            const pendingActions = await new Promise((resolve, reject) => {
+                const request = store.getAll();
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+            });
+            
+            for (const action of pendingActions) {
+                try {
+                    // Process each pending action based on type
+                    if (action.type === 'dispute') {
+                        await db.collection('disputes').add(action.data);
+                    } else if (action.type === 'verification') {
+                        await db.collection('verifications').add(action.data);
+                    } else if (action.type === 'userAction') {
+                        // Handle user actions
+                        const { collection, docId, updates } = action.data;
+                        await db.collection(collection).doc(docId).update(updates);
+                    }
+                    
+                    // Remove from pending after successful sync
+                    const deleteTransaction = db.transaction(['pendingActions'], 'readwrite');
+                    const deleteStore = deleteTransaction.objectStore('pendingActions');
+                    await deleteStore.delete(action.id);
+                    
+                } catch (error) {
+                    console.error('Failed to sync action:', action.id, error);
+                }
+            }
+        } catch (error) {
+            console.error('Sync pending actions error:', error);
+        }
+    }
+
+    // Override Firestore operations for offline support
+    const originalAdd = db.collection().add;
+    db.collection().add = async function(data) {
+        if (!navigator.onLine) {
+            return addToPendingActions({
+                type: this.path.split('/')[0],
+                data: data,
+                collection: this.path,
+                method: 'add'
+            });
+        }
+        return originalAdd.call(this, data);
+    };
 
     // Event Listeners
     function initEventListeners() {
@@ -2441,23 +2787,46 @@
                 const d = doc.data();
                 const date = d.createdAt ? d.createdAt.toDate().toLocaleString() : 'Unknown';
                 const disputeAmount = d.acceptedBid || d.amount || 0;
+                const isManual = d.source === 'manual';
+                
+                // Get contact method icon
+                const contactIcon = getContactMethodIcon(d.contactMethod || 'phone');
                 
                 disputesList.innerHTML += `
-                    <div class="dispute-card" data-dispute-id="${doc.id}" data-dispute-status="${d.status || 'open'}">
+                    <div class="dispute-card" data-dispute-id="${doc.id}" data-dispute-status="${d.status || 'open'}" style="${isManual ? 'border-left: 4px solid #25D366; background: linear-gradient(135deg, #25D36610 0%, #128C7E10 100%);' : ''}">
                         <div class="dispute-header">
-                            <span class="dispute-id">Dispute #${doc.id.slice(-6)}</span>
+                            <span class="dispute-id">
+                                ${isManual ? '<span style="background: #25D366; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; margin-right: 8px;">MANUAL</span>' : ''}
+                                Dispute #${doc.id.slice(-6)}
+                            </span>
                             <span class="status-badge status-${d.status || 'open'}">${(d.status || 'open').toUpperCase()}</span>
                         </div>
-                        <div><strong>Client:</strong> ${d.clientName || 'Unknown'}</div>
-                        <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong>Client:</strong> ${d.clientName || 'Unknown'} 
+                                ${d.clientPhone ? `<span style="font-size: 12px; color: var(--gray); margin-left: 5px;">📞 ${d.clientPhone}</span>` : ''}
+                            </div>
+                            ${isManual ? `
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    ${contactIcon}
+                                    <span style="font-size: 12px; background: rgba(37, 211, 102, 0.2); padding: 2px 8px; border-radius: 12px;">
+                                        ${d.sourceDetail || (d.contactMethod === 'whatsapp' ? 'WhatsApp' : 'Phone Call')}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'} ${d.runnerPhone ? `<span style="font-size: 12px; color: var(--gray);">📞 ${d.runnerPhone}</span>` : ''}</div>
                         <div><strong>Amount in Dispute:</strong> KSH ${disputeAmount.toFixed(2)}</div>
                         <div><strong>Original Budget:</strong> KSH ${(d.originalBudget || 0).toFixed(2)}</div>
-                        <div><strong>Reason:</strong> ${d.reason || 'Not specified'}</div>
+                        <div><strong>Reason:</strong> ${d.reason ? d.reason.replace(/_/g, ' ') : 'Not specified'}</div>
                         <div class="dispute-message">${d.description || d.clientMessage || 'No message'}</div>
                         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
                             <span style="font-size: 12px;">${date}</span>
                             <div>
                                 <button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button>
+                                ${isManual ? `
+                                    <button class="action-btn edit" onclick="editManualDispute('${doc.id}')" style="background: var(--warning);">Edit</button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -2465,6 +2834,7 @@
             });
         } catch (error) {
             console.error('Load disputes error:', error);
+            document.getElementById('disputesList').innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Error loading disputes. Please refresh.</div>';
         }
     }
 
@@ -3821,37 +4191,7 @@
         };
     }
 
-    // Global functions
-    window.viewUser = viewUser;
-    window.banUser = banUser;
-    window.unbanUser = unbanUser;
-    window.suspendUser = suspendUser;
-    window.unsuspendUser = unsuspendUser;
-    window.viewVerification = viewVerification;
-    window.approveVerification = approveVerification;
-    window.rejectVerification = rejectVerification;
-    window.viewDispute = viewDispute;
-    window.resolveDispute = resolveDispute;
-    window.escalateDispute = escalateDispute;
-    window.viewErrand = viewErrand;
-    window.assignRunner = assignRunner;
-    window.cancelErrand = cancelErrand;
-    window.viewTicket = viewTicket;
-    window.respondToTicket = respondToTicket;
-    window.markTicketResolved = markTicketResolved;
-    window.viewTransaction = viewTransaction;
-    window.processTransaction = processTransaction;
-    window.processWithdrawal = processWithdrawal;
-    window.rejectWithdrawal = rejectWithdrawal;
-    window.processAllWithdrawals = processAllWithdrawals;
-    window.saveCommissionSettings = saveCommissionSettings;
-    window.saveSystemSettings = saveSystemSettings;
-    window.addAdmin = addAdmin;
-    window.removeAdmin = removeAdmin;
-    window.showPage = showPage;
-    window.showModal = showModal;
-    window.closeModal = closeModal;
-           // Manual Dispute Functions
+    // Manual Dispute Functions
     function clearManualDisputeForm() {
         document.getElementById('manualClientName').value = '';
         document.getElementById('manualClientPhone').value = '';
@@ -3864,6 +4204,21 @@
         document.getElementById('manualDisputeReason').value = 'non_delivery';
         document.getElementById('manualDisputeDescription').value = '';
         showToast('Form cleared', 'info');
+    }
+
+    function getContactMethodIcon(method) {
+        switch(method) {
+            case 'whatsapp':
+                return '<i class="fab fa-whatsapp" style="color: #25D366;"></i>';
+            case 'phone':
+                return '<i class="fas fa-phone-alt" style="color: var(--primary);"></i>';
+            case 'sms':
+                return '<i class="fas fa-sms" style="color: var(--info);"></i>';
+            case 'email':
+                return '<i class="fas fa-envelope" style="color: var(--warning);"></i>';
+            default:
+                return '<i class="fas fa-phone-alt"></i>';
+        }
     }
 
     async function addManualDispute() {
@@ -3923,6 +4278,20 @@
                 }
             };
 
+            // Check if online before adding
+            if (!navigator.onLine) {
+                const saved = await addToPendingActions({
+                    type: 'dispute',
+                    data: disputeData
+                });
+                if (saved) {
+                    showToast('Dispute saved offline. Will sync when online.', 'info');
+                    clearManualDisputeForm();
+                }
+                hideLoading();
+                return;
+            }
+
             // Add to Firestore
             await db.collection('disputes').doc(disputeId).set(disputeData);
 
@@ -3965,91 +4334,6 @@
         }
     }
 
-    // Function to get contact method icon
-    function getContactMethodIcon(method) {
-        switch(method) {
-            case 'whatsapp':
-                return '<i class="fab fa-whatsapp" style="color: #25D366;"></i>';
-            case 'phone':
-                return '<i class="fas fa-phone-alt" style="color: var(--primary);"></i>';
-            case 'sms':
-                return '<i class="fas fa-sms" style="color: var(--info);"></i>';
-            case 'email':
-                return '<i class="fas fa-envelope" style="color: var(--warning);"></i>';
-            default:
-                return '<i class="fas fa-phone-alt"></i>';
-        }
-    }
-
-    // Override the loadAllDisputes function to show manual entries with special styling
-    const originalLoadAllDisputes = loadAllDisputes;
-    loadAllDisputes = async function() {
-        try {
-            const snapshot = await db.collection('disputes').orderBy('createdAt', 'desc').get();
-            const disputesList = document.getElementById('disputesList');
-            disputesList.innerHTML = '';
-            
-            if (snapshot.empty) {
-                disputesList.innerHTML = '<div style="text-align: center; padding: 40px;">No disputes found</div>';
-                return;
-            }
-            
-            snapshot.forEach(doc => {
-                const d = doc.data();
-                const date = d.createdAt ? d.createdAt.toDate().toLocaleString() : 'Unknown';
-                const disputeAmount = d.acceptedBid || d.amount || 0;
-                const isManual = d.source === 'manual';
-                
-                // Get contact method icon
-                const contactIcon = getContactMethodIcon(d.contactMethod || 'phone');
-                
-                disputesList.innerHTML += `
-                    <div class="dispute-card" data-dispute-id="${doc.id}" data-dispute-status="${d.status || 'open'}" style="${isManual ? 'border-left: 4px solid #25D366; background: linear-gradient(135deg, #25D36610 0%, #128C7E10 100%);' : ''}">
-                        <div class="dispute-header">
-                            <span class="dispute-id">
-                                ${isManual ? '<span style="background: #25D366; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; margin-right: 8px;">MANUAL</span>' : ''}
-                                Dispute #${doc.id.slice(-6)}
-                            </span>
-                            <span class="status-badge status-${d.status || 'open'}">${(d.status || 'open').toUpperCase()}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div>
-                                <strong>Client:</strong> ${d.clientName || 'Unknown'} 
-                                ${d.clientPhone ? `<span style="font-size: 12px; color: var(--gray); margin-left: 5px;">📞 ${d.clientPhone}</span>` : ''}
-                            </div>
-                            ${isManual ? `
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    ${contactIcon}
-                                    <span style="font-size: 12px; background: rgba(37, 211, 102, 0.2); padding: 2px 8px; border-radius: 12px;">
-                                        ${d.sourceDetail || (d.contactMethod === 'whatsapp' ? 'WhatsApp' : 'Phone Call')}
-                                    </span>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'} ${d.runnerPhone ? `<span style="font-size: 12px; color: var(--gray);">📞 ${d.runnerPhone}</span>` : ''}</div>
-                        <div><strong>Amount in Dispute:</strong> KSH ${disputeAmount.toFixed(2)}</div>
-                        <div><strong>Original Budget:</strong> KSH ${(d.originalBudget || 0).toFixed(2)}</div>
-                        <div><strong>Reason:</strong> ${d.reason ? d.reason.replace(/_/g, ' ') : 'Not specified'}</div>
-                        <div class="dispute-message">${d.description || d.clientMessage || 'No message'}</div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-                            <span style="font-size: 12px;">${date}</span>
-                            <div>
-                                <button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button>
-                                ${isManual ? `
-                                    <button class="action-btn edit" onclick="editManualDispute('${doc.id}')" style="background: var(--warning);">Edit</button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        } catch (error) {
-            console.error('Load disputes error:', error);
-            document.getElementById('disputesList').innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Error loading disputes. Please refresh.</div>';
-        }
-    };
-
-    // Function to edit manual disputes
     async function editManualDispute(disputeId) {
         try {
             const doc = await db.collection('disputes').doc(disputeId).get();
@@ -4095,9 +4379,8 @@
         }
     }
 
-    // Function to update manual dispute
     async function updateManualDispute(disputeId) {
-        // Get form values (same as add)
+        // Get form values
         const clientName = document.getElementById('manualClientName').value.trim();
         const clientPhone = document.getElementById('manualClientPhone').value.trim();
         const runnerName = document.getElementById('manualRunnerName').value.trim();
@@ -4134,6 +4417,24 @@
                 updatedByName: adminData?.name || 'Admin'
             };
 
+            // Check if online
+            if (!navigator.onLine) {
+                const saved = await addToPendingActions({
+                    type: 'userAction',
+                    data: {
+                        collection: 'disputes',
+                        docId: disputeId,
+                        updates: updateData
+                    }
+                });
+                if (saved) {
+                    showToast('Update saved offline. Will sync when online.', 'info');
+                    clearManualDisputeForm();
+                }
+                hideLoading();
+                return;
+            }
+
             await db.collection('disputes').doc(disputeId).update(updateData);
             
             showToast('Manual dispute updated successfully', 'success');
@@ -4156,11 +4457,42 @@
         }
     }
 
-    // Add the functions to window object
+    // Global functions
+    window.viewUser = viewUser;
+    window.banUser = banUser;
+    window.unbanUser = unbanUser;
+    window.suspendUser = suspendUser;
+    window.unsuspendUser = unsuspendUser;
+    window.viewVerification = viewVerification;
+    window.approveVerification = approveVerification;
+    window.rejectVerification = rejectVerification;
+    window.viewDispute = viewDispute;
+    window.resolveDispute = resolveDispute;
+    window.escalateDispute = escalateDispute;
+    window.viewErrand = viewErrand;
+    window.assignRunner = assignRunner;
+    window.cancelErrand = cancelErrand;
+    window.viewTicket = viewTicket;
+    window.respondToTicket = respondToTicket;
+    window.markTicketResolved = markTicketResolved;
+    window.viewTransaction = viewTransaction;
+    window.processTransaction = processTransaction;
+    window.processWithdrawal = processWithdrawal;
+    window.rejectWithdrawal = rejectWithdrawal;
+    window.processAllWithdrawals = processAllWithdrawals;
+    window.saveCommissionSettings = saveCommissionSettings;
+    window.saveSystemSettings = saveSystemSettings;
+    window.addAdmin = addAdmin;
+    window.removeAdmin = removeAdmin;
+    window.showPage = showPage;
+    window.showModal = showModal;
+    window.closeModal = closeModal;
     window.clearManualDisputeForm = clearManualDisputeForm;
     window.addManualDispute = addManualDispute;
     window.editManualDispute = editManualDispute;
     window.updateManualDispute = updateManualDispute;
-</script>
+    window.installPWA = installPWA;
+    window.dismissInstallPrompt = dismissInstallPrompt;
+    </script>
 </body>
 </html>
