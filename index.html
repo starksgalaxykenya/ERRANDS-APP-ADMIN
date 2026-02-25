@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ERRANDS - Admin Dashboard</title>
     
-    <!-- PWA Meta Tags -->
+    <!-- PWA Meta Tags - Fixed deprecated tag -->
     <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ERRANDS Admin">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
@@ -950,6 +950,23 @@
                 margin-top: env(safe-area-inset-top);
             }
         }
+
+        /* Fallback icon styles */
+        .fallback-icon {
+            width: 192px;
+            height: 192px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .fallback-icon i {
+            font-size: 96px;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -1861,6 +1878,13 @@
         <div class="spinner"></div>
     </div>
 
+    <!-- Fallback Icons (will be used if actual icons are missing) -->
+    <div style="display: none;">
+        <div class="fallback-icon" id="fallbackIcon">
+            <i class="fas fa-running"></i>
+        </div>
+    </div>
+
    <script>
     // Firebase Configuration
     const firebaseConfig = {
@@ -1945,7 +1969,7 @@
             }
         });
 
-        // Register Service Worker
+        // Register Service Worker with error handling
         registerServiceWorker();
         
         // Handle online/offline events
@@ -1961,30 +1985,33 @@
     // PWA Functions
     function registerServiceWorker() {
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registered: ', registration);
+            // Try to register with the correct path based on current location
+            const isGitHubPages = window.location.hostname.includes('github.io');
+            const basePath = isGitHubPages ? '/ERRANDS-APP-ADMIN/' : '/';
+            
+            navigator.serviceWorker.register(`${basePath}sw.js`, { scope: basePath })
+                .then(registration => {
+                    console.log('ServiceWorker registered: ', registration);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('ServiceWorker update found!');
                         
-                        // Check for updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            console.log('ServiceWorker update found!');
-                            
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New version available
-                                    if (confirm('New version available! Reload to update?')) {
-                                        window.location.reload();
-                                    }
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available
+                                if (confirm('New version available! Reload to update?')) {
+                                    window.location.reload();
                                 }
-                            });
+                            }
                         });
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
                     });
-            });
+                })
+                .catch(error => {
+                    console.log('ServiceWorker registration failed: ', error);
+                    // Don't show error to user, just log it
+                });
         }
     }
 
@@ -2018,7 +2045,7 @@
             deferredPrompt = e;
             // Show install prompt after 2 seconds
             setTimeout(() => {
-                installPrompt.classList.add('show');
+                if (installPrompt) installPrompt.classList.add('show');
             }, 2000);
         });
     }
@@ -2037,11 +2064,11 @@
         deferredPrompt = null;
         
         // Hide our custom prompt
-        installPrompt.classList.remove('show');
+        if (installPrompt) installPrompt.classList.remove('show');
     };
 
     window.dismissInstallPrompt = () => {
-        installPrompt.classList.remove('show');
+        if (installPrompt) installPrompt.classList.remove('show');
     };
 
     function checkIfStandalone() {
@@ -2139,20 +2166,6 @@
         }
     }
 
-    // Override Firestore operations for offline support
-    const originalAdd = db.collection().add;
-    db.collection().add = async function(data) {
-        if (!navigator.onLine) {
-            return addToPendingActions({
-                type: this.path.split('/')[0],
-                data: data,
-                collection: this.path,
-                method: 'add'
-            });
-        }
-        return originalAdd.call(this, data);
-    };
-
     // Event Listeners
     function initEventListeners() {
         // Login
@@ -2248,7 +2261,7 @@
         });
     }
 
-    // Admin Login - FIXED VERSION
+    // Admin Login
     async function adminLogin() {
         const email = document.getElementById('adminEmail').value.trim();
         const password = document.getElementById('adminPassword').value;
@@ -2364,19 +2377,21 @@
 
     function showLoginError(message) {
         const errorDiv = document.getElementById('loginError');
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-        
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            errorDiv.style.display = 'none';
-        }, 5000);
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
     }
 
     // Load all data
     async function loadAllData() {
         try {
-            await Promise.all([
+            await Promise.allSettled([
                 loadAllUsers(),
                 loadAllErrands(),
                 loadAllTransactions(),
@@ -2398,7 +2413,7 @@
         showLoading();
         
         try {
-            await Promise.all([
+            await Promise.allSettled([
                 loadStats(),
                 loadPendingVerifications(),
                 loadRecentDisputes(),
@@ -4364,12 +4379,17 @@
             document.getElementById('manualDisputeDescription').value = d.description || '';
             
             // Scroll to form
-            document.querySelector('#disputesPage .manual-dispute-section').scrollIntoView({ behavior: 'smooth' });
+            const manualSection = document.querySelector('#disputesPage .manual-dispute-section');
+            if (manualSection) {
+                manualSection.scrollIntoView({ behavior: 'smooth' });
+            }
             
             // Change add button to update
             const addBtn = document.querySelector('button[onclick="addManualDispute()"]');
-            addBtn.innerHTML = '<i class="fas fa-save"></i> Update Dispute';
-            addBtn.onclick = function() { updateManualDispute(disputeId); };
+            if (addBtn) {
+                addBtn.innerHTML = '<i class="fas fa-save"></i> Update Dispute';
+                addBtn.onclick = function() { updateManualDispute(disputeId); };
+            }
             
             showToast('Edit mode activated. Update the form and click Update.', 'info');
             
