@@ -1237,7 +1237,7 @@
                 </div>
             </div>
 
-            <!-- Disputes Page -->
+                       <!-- Disputes Page -->
             <div id="disputesPage" class="page">
                 <div class="table-container">
                     <div class="table-header">
@@ -1249,10 +1249,101 @@
                         </div>
                     </div>
                     
+                    <!-- Manual Dispute Adder - New Section -->
+                    <div style="background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; border: 1px dashed var(--primary);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <i class="fas fa-phone-alt" style="color: var(--primary); font-size: 20px;"></i>
+                            <i class="fab fa-whatsapp" style="color: #25D366; font-size: 20px;"></i>
+                            <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Manual Dispute Entry (Call/WhatsApp)</h3>
+                            <span style="background: var(--primary); color: white; padding: 2px 10px; border-radius: 20px; font-size: 12px;">Quick Add</span>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Client Name <span style="color: var(--danger);">*</span></label>
+                                <input type="text" id="manualClientName" class="form-control" placeholder="e.g., John Doe" style="padding: 10px;">
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Client Phone <span style="color: var(--danger);">*</span></label>
+                                <input type="tel" id="manualClientPhone" class="form-control" placeholder="e.g., +254712345678" style="padding: 10px;">
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Runner Name</label>
+                                <input type="text" id="manualRunnerName" class="form-control" placeholder="e.g., Jane Smith" style="padding: 10px;">
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Runner Phone</label>
+                                <input type="tel" id="manualRunnerPhone" class="form-control" placeholder="e.g., +254712345679" style="padding: 10px;">
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Dispute Amount (KSH)</label>
+                                <input type="number" id="manualDisputeAmount" class="form-control" placeholder="e.g., 1500" style="padding: 10px;" min="0">
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Original Budget</label>
+                                <input type="number" id="manualOriginalBudget" class="form-control" placeholder="e.g., 2000" style="padding: 10px;" min="0">
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Errand Type</label>
+                                <select id="manualErrandType" class="form-control" style="padding: 10px;">
+                                    <option value="delivery">Delivery</option>
+                                    <option value="shopping">Shopping</option>
+                                    <option value="pickup">Pickup</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 13px;">Contact Method</label>
+                                <select id="manualContactMethod" class="form-control" style="padding: 10px;">
+                                    <option value="phone">📞 Phone Call</option>
+                                    <option value="whatsapp">💬 WhatsApp</option>
+                                    <option value="sms">📱 SMS</option>
+                                    <option value="email">📧 Email</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 13px;">Dispute Reason <span style="color: var(--danger);">*</span></label>
+                                <select id="manualDisputeReason" class="form-control" style="padding: 10px;">
+                                    <option value="non_delivery">Non-Delivery</option>
+                                    <option value="late_delivery">Late Delivery</option>
+                                    <option value="wrong_items">Wrong Items</option>
+                                    <option value="quality_issue">Quality Issue</option>
+                                    <option value="payment_dispute">Payment Dispute</option>
+                                    <option value="runner_behavior">Runner Behavior</option>
+                                    <option value="cancellation">Cancellation Fee</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" style="font-size: 13px;">Dispute Description <span style="color: var(--danger);">*</span></label>
+                                <textarea id="manualDisputeDescription" class="form-control" rows="2" placeholder="Brief description of the issue..." style="resize: none;"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                            <button class="btn btn-outline" onclick="clearManualDisputeForm()" style="padding: 10px 20px;">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                            <button class="btn btn-primary" onclick="addManualDispute()" style="padding: 10px 20px; background: linear-gradient(135deg, var(--primary), var(--secondary));">
+                                <i class="fas fa-plus-circle"></i> Add Manual Dispute
+                            </button>
+                        </div>
+                    </div>
+                    
                     <div id="disputesList"></div>
                 </div>
             </div>
-
             <!-- Payments Page -->
             <div id="paymentsPage" class="page">
                 <div class="stats-grid">
@@ -3760,6 +3851,316 @@
     window.showPage = showPage;
     window.showModal = showModal;
     window.closeModal = closeModal;
+           // Manual Dispute Functions
+    function clearManualDisputeForm() {
+        document.getElementById('manualClientName').value = '';
+        document.getElementById('manualClientPhone').value = '';
+        document.getElementById('manualRunnerName').value = '';
+        document.getElementById('manualRunnerPhone').value = '';
+        document.getElementById('manualDisputeAmount').value = '';
+        document.getElementById('manualOriginalBudget').value = '';
+        document.getElementById('manualErrandType').value = 'delivery';
+        document.getElementById('manualContactMethod').value = 'phone';
+        document.getElementById('manualDisputeReason').value = 'non_delivery';
+        document.getElementById('manualDisputeDescription').value = '';
+        showToast('Form cleared', 'info');
+    }
+
+    async function addManualDispute() {
+        // Get form values
+        const clientName = document.getElementById('manualClientName').value.trim();
+        const clientPhone = document.getElementById('manualClientPhone').value.trim();
+        const runnerName = document.getElementById('manualRunnerName').value.trim();
+        const runnerPhone = document.getElementById('manualRunnerPhone').value.trim();
+        const disputeAmount = parseFloat(document.getElementById('manualDisputeAmount').value) || 0;
+        const originalBudget = parseFloat(document.getElementById('manualOriginalBudget').value) || disputeAmount;
+        const errandType = document.getElementById('manualErrandType').value;
+        const contactMethod = document.getElementById('manualContactMethod').value;
+        const disputeReason = document.getElementById('manualDisputeReason').value;
+        const disputeDescription = document.getElementById('manualDisputeDescription').value.trim();
+
+        // Validate required fields
+        if (!clientName || !clientPhone || !disputeDescription) {
+            showToast('Please fill in all required fields (Client Name, Phone, and Description)', 'error');
+            return;
+        }
+
+        // Validate phone number format (basic)
+        const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+        if (!phoneRegex.test(clientPhone.replace(/\s/g, ''))) {
+            showToast('Please enter a valid phone number', 'error');
+            return;
+        }
+
+        showLoading();
+
+        try {
+            // Create a unique ID for the manual dispute
+            const disputeId = `manual_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            // Prepare dispute data
+            const disputeData = {
+                id: disputeId,
+                clientName: clientName,
+                clientPhone: clientPhone,
+                runnerName: runnerName || 'Not specified',
+                runnerPhone: runnerPhone || 'Not provided',
+                amount: disputeAmount,
+                originalBudget: originalBudget || disputeAmount,
+                errandType: errandType,
+                contactMethod: contactMethod,
+                reason: disputeReason,
+                description: disputeDescription,
+                status: 'open',
+                source: 'manual',
+                sourceDetail: contactMethod === 'whatsapp' ? 'WhatsApp Call' : 'Phone Call',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdBy: currentAdmin?.uid || 'admin',
+                createdByName: adminData?.name || 'Admin',
+                metadata: {
+                    isManualEntry: true,
+                    entryDate: new Date().toISOString()
+                }
+            };
+
+            // Add to Firestore
+            await db.collection('disputes').doc(disputeId).set(disputeData);
+
+            // Also add to a separate collection for manual entries if needed
+            await db.collection('manualDisputes').doc(disputeId).set({
+                ...disputeData,
+                syncedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Log the action
+            await db.collection('adminLogs').add({
+                action: 'manual_dispute_created',
+                disputeId: disputeId,
+                adminId: currentAdmin?.uid || 'admin',
+                adminName: adminData?.name || 'Admin',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                details: {
+                    clientName: clientName,
+                    contactMethod: contactMethod,
+                    amount: disputeAmount
+                }
+            });
+
+            showToast(`Manual dispute added successfully via ${contactMethod === 'whatsapp' ? 'WhatsApp' : 'Phone'}`, 'success');
+            
+            // Clear the form
+            clearManualDisputeForm();
+            
+            // Refresh disputes list
+            await loadAllDisputes();
+            
+            // Update badges
+            await updateBadges();
+
+        } catch (error) {
+            console.error('Add manual dispute error:', error);
+            showToast('Error adding manual dispute: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Function to get contact method icon
+    function getContactMethodIcon(method) {
+        switch(method) {
+            case 'whatsapp':
+                return '<i class="fab fa-whatsapp" style="color: #25D366;"></i>';
+            case 'phone':
+                return '<i class="fas fa-phone-alt" style="color: var(--primary);"></i>';
+            case 'sms':
+                return '<i class="fas fa-sms" style="color: var(--info);"></i>';
+            case 'email':
+                return '<i class="fas fa-envelope" style="color: var(--warning);"></i>';
+            default:
+                return '<i class="fas fa-phone-alt"></i>';
+        }
+    }
+
+    // Override the loadAllDisputes function to show manual entries with special styling
+    const originalLoadAllDisputes = loadAllDisputes;
+    loadAllDisputes = async function() {
+        try {
+            const snapshot = await db.collection('disputes').orderBy('createdAt', 'desc').get();
+            const disputesList = document.getElementById('disputesList');
+            disputesList.innerHTML = '';
+            
+            if (snapshot.empty) {
+                disputesList.innerHTML = '<div style="text-align: center; padding: 40px;">No disputes found</div>';
+                return;
+            }
+            
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                const date = d.createdAt ? d.createdAt.toDate().toLocaleString() : 'Unknown';
+                const disputeAmount = d.acceptedBid || d.amount || 0;
+                const isManual = d.source === 'manual';
+                
+                // Get contact method icon
+                const contactIcon = getContactMethodIcon(d.contactMethod || 'phone');
+                
+                disputesList.innerHTML += `
+                    <div class="dispute-card" data-dispute-id="${doc.id}" data-dispute-status="${d.status || 'open'}" style="${isManual ? 'border-left: 4px solid #25D366; background: linear-gradient(135deg, #25D36610 0%, #128C7E10 100%);' : ''}">
+                        <div class="dispute-header">
+                            <span class="dispute-id">
+                                ${isManual ? '<span style="background: #25D366; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; margin-right: 8px;">MANUAL</span>' : ''}
+                                Dispute #${doc.id.slice(-6)}
+                            </span>
+                            <span class="status-badge status-${d.status || 'open'}">${(d.status || 'open').toUpperCase()}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong>Client:</strong> ${d.clientName || 'Unknown'} 
+                                ${d.clientPhone ? `<span style="font-size: 12px; color: var(--gray); margin-left: 5px;">📞 ${d.clientPhone}</span>` : ''}
+                            </div>
+                            ${isManual ? `
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    ${contactIcon}
+                                    <span style="font-size: 12px; background: rgba(37, 211, 102, 0.2); padding: 2px 8px; border-radius: 12px;">
+                                        ${d.sourceDetail || (d.contactMethod === 'whatsapp' ? 'WhatsApp' : 'Phone Call')}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div><strong>Runner:</strong> ${d.runnerName || 'Unknown'} ${d.runnerPhone ? `<span style="font-size: 12px; color: var(--gray);">📞 ${d.runnerPhone}</span>` : ''}</div>
+                        <div><strong>Amount in Dispute:</strong> KSH ${disputeAmount.toFixed(2)}</div>
+                        <div><strong>Original Budget:</strong> KSH ${(d.originalBudget || 0).toFixed(2)}</div>
+                        <div><strong>Reason:</strong> ${d.reason ? d.reason.replace(/_/g, ' ') : 'Not specified'}</div>
+                        <div class="dispute-message">${d.description || d.clientMessage || 'No message'}</div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                            <span style="font-size: 12px;">${date}</span>
+                            <div>
+                                <button class="action-btn view" onclick="viewDispute('${doc.id}')">Resolve</button>
+                                ${isManual ? `
+                                    <button class="action-btn edit" onclick="editManualDispute('${doc.id}')" style="background: var(--warning);">Edit</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error('Load disputes error:', error);
+            document.getElementById('disputesList').innerHTML = '<div style="text-align: center; padding: 40px; color: var(--danger);">Error loading disputes. Please refresh.</div>';
+        }
+    };
+
+    // Function to edit manual disputes
+    async function editManualDispute(disputeId) {
+        try {
+            const doc = await db.collection('disputes').doc(disputeId).get();
+            
+            if (!doc.exists) {
+                showToast('Dispute not found', 'error');
+                return;
+            }
+            
+            const d = doc.data();
+            
+            // Only allow editing manual disputes
+            if (d.source !== 'manual') {
+                showToast('Only manual disputes can be edited', 'warning');
+                return;
+            }
+            
+            // Pre-fill form with existing data
+            document.getElementById('manualClientName').value = d.clientName || '';
+            document.getElementById('manualClientPhone').value = d.clientPhone || '';
+            document.getElementById('manualRunnerName').value = d.runnerName || '';
+            document.getElementById('manualRunnerPhone').value = d.runnerPhone || '';
+            document.getElementById('manualDisputeAmount').value = d.amount || d.acceptedBid || '';
+            document.getElementById('manualOriginalBudget').value = d.originalBudget || '';
+            document.getElementById('manualErrandType').value = d.errandType || 'delivery';
+            document.getElementById('manualContactMethod').value = d.contactMethod || 'phone';
+            document.getElementById('manualDisputeReason').value = d.reason || 'non_delivery';
+            document.getElementById('manualDisputeDescription').value = d.description || '';
+            
+            // Scroll to form
+            document.querySelector('#disputesPage .manual-dispute-section').scrollIntoView({ behavior: 'smooth' });
+            
+            // Change add button to update
+            const addBtn = document.querySelector('button[onclick="addManualDispute()"]');
+            addBtn.innerHTML = '<i class="fas fa-save"></i> Update Dispute';
+            addBtn.onclick = function() { updateManualDispute(disputeId); };
+            
+            showToast('Edit mode activated. Update the form and click Update.', 'info');
+            
+        } catch (error) {
+            console.error('Edit manual dispute error:', error);
+            showToast('Error loading dispute for editing', 'error');
+        }
+    }
+
+    // Function to update manual dispute
+    async function updateManualDispute(disputeId) {
+        // Get form values (same as add)
+        const clientName = document.getElementById('manualClientName').value.trim();
+        const clientPhone = document.getElementById('manualClientPhone').value.trim();
+        const runnerName = document.getElementById('manualRunnerName').value.trim();
+        const runnerPhone = document.getElementById('manualRunnerPhone').value.trim();
+        const disputeAmount = parseFloat(document.getElementById('manualDisputeAmount').value) || 0;
+        const originalBudget = parseFloat(document.getElementById('manualOriginalBudget').value) || disputeAmount;
+        const errandType = document.getElementById('manualErrandType').value;
+        const contactMethod = document.getElementById('manualContactMethod').value;
+        const disputeReason = document.getElementById('manualDisputeReason').value;
+        const disputeDescription = document.getElementById('manualDisputeDescription').value.trim();
+
+        // Validate
+        if (!clientName || !clientPhone || !disputeDescription) {
+            showToast('Please fill in all required fields', 'error');
+            return;
+        }
+
+        showLoading();
+
+        try {
+            const updateData = {
+                clientName: clientName,
+                clientPhone: clientPhone,
+                runnerName: runnerName || 'Not specified',
+                runnerPhone: runnerPhone || 'Not provided',
+                amount: disputeAmount,
+                originalBudget: originalBudget,
+                errandType: errandType,
+                contactMethod: contactMethod,
+                reason: disputeReason,
+                description: disputeDescription,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedBy: currentAdmin?.uid || 'admin',
+                updatedByName: adminData?.name || 'Admin'
+            };
+
+            await db.collection('disputes').doc(disputeId).update(updateData);
+            
+            showToast('Manual dispute updated successfully', 'success');
+            
+            // Reset form and button
+            clearManualDisputeForm();
+            const addBtn = document.querySelector('button[onclick="updateManualDispute()"]');
+            if (addBtn) {
+                addBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Manual Dispute';
+                addBtn.onclick = addManualDispute;
+            }
+            
+            await loadAllDisputes();
+            
+        } catch (error) {
+            console.error('Update manual dispute error:', error);
+            showToast('Error updating dispute: ' + error.message, 'error');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Add the functions to window object
+    window.clearManualDisputeForm = clearManualDisputeForm;
+    window.addManualDispute = addManualDispute;
+    window.editManualDispute = editManualDispute;
+    window.updateManualDispute = updateManualDispute;
 </script>
 </body>
 </html>
